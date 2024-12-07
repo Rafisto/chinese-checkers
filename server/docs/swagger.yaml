@@ -1,0 +1,147 @@
+basePath: /
+definitions:
+  server.CreateGameRequest:
+    properties:
+      playerNum:
+        type: integer
+    type: object
+externalDocs:
+  description: OpenAPI
+  url: https://swagger.io/resources/open-api/
+host: localhost:8080
+info:
+  contact:
+    email: rvrelay@gmail.com
+    name: Project Documentation
+    url: https://github.com/rafisto/chinese-checkers
+  description: This is the API for the Chinese Checkers game. It allows you to create
+    and join games, and play the game with other players.
+  termsOfService: http://swagger.io/terms/
+  title: Chinese Checkers API
+  version: 1.0-sprint1
+paths:
+  /games:
+    get:
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully received all active games
+          schema:
+            type: string
+        "400":
+          description: Bad request, missing fields or invalid data
+          schema:
+            type: string
+      summary: Get all currently active games
+      tags:
+      - Game
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Initial game parameters
+        in: body
+        name: playerNum
+        required: true
+        schema:
+          $ref: '#/definitions/server.CreateGameRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully created game
+          schema:
+            type: string
+        "400":
+          description: Bad request, missing fields or invalid data
+          schema:
+            type: string
+      summary: Create a new game provided its initial parameters
+      tags:
+      - Game
+  /games/{game_id}/join:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Username
+        in: query
+        name: username
+        required: true
+        type: string
+      - description: Game ID
+        in: path
+        name: game_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully joined the game
+          schema:
+            type: string
+        "400":
+          description: Bad request, missing fields or invalid data
+          schema:
+            type: string
+      summary: Join a game by its ID, provided the username
+      tags:
+      - Game
+  /games/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Game ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Scuccessfully received the desired game
+          schema:
+            type: string
+        "400":
+          description: Bad request, missing fields or invalid data
+          schema:
+            type: string
+      summary: Get a game by its ID
+      tags:
+      - Game
+  /ws:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Game ID
+        in: query
+        name: gameID
+        required: true
+        type: integer
+      - description: Player ID
+        in: query
+        name: playerID
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully joined the game
+          schema:
+            type: string
+        "400":
+          description: Bad request, missing fields or invalid data
+          schema:
+            type: string
+      summary: Provided the username and game ID create a websocket connection.
+      tags:
+      - Game
+swagger: "2.0"

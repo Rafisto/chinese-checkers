@@ -32,6 +32,10 @@ func (gm *GameManager) CreateGame(playerNum int, board Board) (*Game, error) {
 	}
 }
 
+func (gm *GameManager) GetGames() map[int]*Game {
+	return gm.games
+}
+
 func (gm *GameManager) createPlayer(username string, gameID int) (*Player, error) {
 	player, err := NewPlayer(gm.nextPlayerID, username, gameID)
 	if err == nil {
@@ -43,25 +47,29 @@ func (gm *GameManager) createPlayer(username string, gameID int) (*Player, error
 	}
 }
 
-func (gm *GameManager) GetGames() map[int]*Game {
-	return gm.games
+func (gm *GameManager) GetPlayers() map[int]*Player {
+	return gm.players
 }
 
-func (gm *GameManager) JoinGame(gameID int, username string) error {
+func (gm *GameManager) JoinGame(gameID int, username string) (*Player, error) {
 	game := gm.games[gameID]
 	if game == nil {
-		return fmt.Errorf("game doesn't exist")
+		return nil, fmt.Errorf("game doesn't exist")
 	}
 
 	if game.GetCurrentPlayerNum() == game.GetPlayerNum() {
-		return fmt.Errorf("game full")
+		return nil, fmt.Errorf("game full")
 	}
 
-	player, nil := gm.createPlayer(username, gameID)
-	err := game.AddPlayer(player.GetPlayerID())
-	if err == nil {
-		return nil
-	} else {
-		return err
+	player, err := gm.createPlayer(username, gameID)
+	if err != nil {
+		return nil, err
 	}
+
+	err = game.AddPlayer(player.GetPlayerID())
+	if err != nil {
+		return nil, err
+	}
+
+	return player, nil
 }
