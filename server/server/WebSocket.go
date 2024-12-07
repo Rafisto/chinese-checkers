@@ -49,15 +49,16 @@ func WReadMessage(conn *websocket.Conn) (string, error) {
 }
 
 // HandleWebSocket godoc
-// @Summary Provided the username and game ID create a websocket connection.
-// @Tags Game
-// @Accept json
-// @Produce json
-// @Param gameID query int true "Game ID"
-// @Param playerID query int true "Player ID"
-// @Success 200 {object} string "Successfully joined the game"
-// @Failure 400 {object} string "Bad request, missing fields or invalid data"
-// @Router /ws [get].
+//
+//	@Summary	Provided the username and game ID create a websocket connection.
+//	@Tags		Game
+//	@Accept		json
+//	@Produce	json
+//	@Param		gameID		query		int		true	"Game ID"
+//	@Param		playerID	query		int		true	"Player ID"
+//	@Success	200			{object}	string	"Successfully joined the game"
+//	@Failure	400			{object}	string	"Bad request, missing fields or invalid data"
+//	@Router		/ws [get].
 func (s *Server) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 	upgrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool { return true },

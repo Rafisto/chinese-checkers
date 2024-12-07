@@ -10,7 +10,8 @@ import (
 )
 
 // WriteJSON godoc
-// @Summary Write a JSON response with the provided data and status code
+//
+//	@Summary	Write a JSON response with the provided data and status code
 func WriteJSON(w http.ResponseWriter, code int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
@@ -18,26 +19,29 @@ func WriteJSON(w http.ResponseWriter, code int, data interface{}) {
 }
 
 // Response godoc
-// @Summary Response message
+//
+//	@Summary	Response message
 type Response struct {
 	message string
 }
 
 // CreateGameRequest godoc
-// @Summary Create game request to send to the CreateGameHandler
+//
+//	@Summary	Create game request to send to the CreateGameHandler
 type CreateGameRequest struct {
 	PlayerNum int `json:"playerNum"`
 }
 
 // CreateGameHandler godoc
-// @Summary Create a new game provided its initial parameters
-// @Tags Game
-// @Accept jsond
-// @Produce json
-// @Param playerNum body CreateGameRequest true "Initial game parameters"
-// @Success 201 {object} string "Successfully created game"
-// @Failure 400 {object} string "Bad request, missing fields or invalid data"
-// @Router /games [post].
+//
+//	@Summary	Create a new game provided its initial parameters
+//	@Tags		Game
+//	@Accept		json
+//	@Produce	json
+//	@Param		playerNum	body		CreateGameRequest	true	"Initial game parameters"
+//	@Success	201			{object}	string				"Successfully created game"
+//	@Failure	400			{object}	string				"Bad request, missing fields or invalid data"
+//	@Router		/games [post].
 func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
 	if r.Method == http.MethodPost {
 		var req CreateGameRequest
@@ -60,14 +64,15 @@ func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *g
 }
 
 // GetGameHandler godoc
-// @Summary Get a game by its ID
-// @Tags Game
-// @Accept json
-// @Produce json
-// @Param id path string true "Game ID"
-// @Success 200 {object} string "Scuccessfully received the desired game"
-// @Failure 400 {object} string "Bad request, missing fields or invalid data"
-// @Router /games/{id} [get].
+//
+//	@Summary	Get a game by its ID
+//	@Tags		Game
+//	@Accept		json
+//	@Produce	json
+//	@Param		id	path		string	true	"Game ID"
+//	@Success	200	{object}	string	"Scuccessfully received the desired game"
+//	@Failure	400	{object}	string	"Bad request, missing fields or invalid data"
+//	@Router		/games/{id} [get].
 func (s *Server) GetGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
 	id := r.PathValue("id")
 
@@ -92,13 +97,14 @@ func (s *Server) GetGameHandler(w http.ResponseWriter, r *http.Request, gm *game
 }
 
 // GetGamesHandler godoc
-// @Summary Get all currently active games
-// @Tags Game
-// @Accept json
-// @Produce json
-// @Success 200 {object} string "Successfully received all active games"
-// @Failure 400 {object} string "Bad request, missing fields or invalid data"
-// @Router /games [get].
+//
+//	@Summary	Get all currently active games
+//	@Tags		Game
+//	@Accept		json
+//	@Produce	json
+//	@Success	200	{object}	string	"Successfully received all active games"
+//	@Failure	400	{object}	string	"Bad request, missing fields or invalid data"
+//	@Router		/games [get].
 func (s *Server) GetGamesHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
 	if r.Method == http.MethodGet {
 		games := gm.GetGames()
@@ -124,14 +130,16 @@ func (s *Server) GetGamesHandler(w http.ResponseWriter, r *http.Request, gm *gam
 }
 
 // JoinGameHandler godoc
-// @Summary Join a game by its ID, provided the username
-// @Tags Game
-// @Accept json
-// @Produce json
-// @Param username query string true "Username"
-// @Success 200 {object} string "Successfully joined the game"
-// @Failure 400 {object} string "Bad request, missing fields or invalid data"
-// @Router /games/{game_id}/join [get].
+//
+//	@Summary	Join a game by its ID, provided the username
+//	@Tags		Game
+//	@Accept		json
+//	@Produce	json
+//	@Param		username	query		string	true	"Username"
+//	@Param		game_id		path		string	true	"Game ID"
+//	@Success	200			{object}	string	"Successfully joined the game"
+//	@Failure	400			{object}	string	"Bad request, missing fields or invalid data"
+//	@Router		/games/{game_id}/join [post].
 func (s *Server) JoinGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
 	game_id := r.PathValue("game_id")
 

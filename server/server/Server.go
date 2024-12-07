@@ -7,7 +7,9 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	httpSwagger "github.com/swaggo/http-swagger"
 
+	_ "chinese-checkers/docs"
 	"chinese-checkers/game"
 )
 
@@ -59,6 +61,9 @@ func (s *Server) createHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		s.HandleWebSocket(w, r)
 	})
+
+	// mux.Handle("/swagger/", http.StripPrefix("/swagger/", http.FileServer(swaggerFiles.Handler)))
+	mux.Handle("/swagger/", httpSwagger.WrapHandler)
 }
 
 // RegisterNewSocketConnection godoc
