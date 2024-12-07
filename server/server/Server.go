@@ -6,39 +6,92 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/gorilla/websocket"
+
 	"chinese-checkers/game"
 )
 
-type Server struct {
-	GameManager *game.GameManager
+// GameConnection godoc
+// @Summary Store a single websocket connection to a game
+type GameConnection struct {
+	GameID   int
+	PlayerID int
+	Conn     *websocket.Conn
 }
 
+// Server godoc
+// @Summary Store game manager and all websocket connections by gameID
+type Server struct {
+	GameManager     *game.GameManager
+	GameConnections map[int][]GameConnection
+}
+
+// NewServer godoc
+// @Summary Create a new HTTP/WebSocket Server
 func NewServer() *Server {
 	return &Server{
-		GameManager: game.NewGameManager(),
+		GameManager:     game.NewGameManager(),
+		GameConnections: make(map[int][]GameConnection),
 	}
 }
 
+// createHandlers godoc
+// @Summary Handle all game creation and join endpoints. Handle websocket endpoint
 func (s *Server) createHandlers(mux *http.ServeMux) {
 	mux.HandleFunc("/games", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method == http.MethodPost {
-			CreateGameHandler(w, r, s.GameManager)
+			s.CreateGameHandler(w, r, s.GameManager)
 		} else if r.Method == http.MethodGet {
-			GetGamesHandler(w, r, s.GameManager)
+			s.GetGamesHandler(w, r, s.GameManager)
 		} else {
 			WriteJSON(w, http.StatusMethodNotAllowed, "Method not allowed")
 		}
 	})
 
 	mux.HandleFunc("/games/{id}", func(w http.ResponseWriter, r *http.Request) {
-		GetGameHandler(w, r, s.GameManager)
+		s.GetGameHandler(w, r, s.GameManager)
 	})
 
 	mux.HandleFunc("/games/{game_id}/join", func(w http.ResponseWriter, r *http.Request) {
-		JoinGameHandler(w, r, s.GameManager)
+		s.JoinGameHandler(w, r, s.GameManager)
+	})
+
+	mux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		s.HandleWebSocket(w, r)
 	})
 }
 
+// RegisterNewSocketConnection godoc
+// @Summary Add a websocket connection to the server map (by game)
+func (s *Server) RegisterNewSocketConnection(gameID, playerID int, conn *websocket.Conn) {
+	if _, ok := s.GameConnections[gameID]; !ok {
+		s.GameConnections[gameID] = make([]GameConnection, 0)
+	}
+
+	s.GameConnections[gameID] = append(s.GameConnections[gameID], GameConnection{
+		GameID:   gameID,
+		PlayerID: playerID,
+		Conn:     conn,
+	})
+}
+
+// RemoveSocketConnection godoc
+// @Summary Remvoe a websocket connection from the server map (by game)
+func (s *Server) RemoveSocketConnection(gameID, playerID int) {
+	if _, ok := s.GameConnections[gameID]; !ok {
+		return
+	}
+
+	for i, conn := range s.GameConnections[gameID] {
+		if conn.PlayerID == playerID {
+			s.GameConnections[gameID] = append(s.GameConnections[gameID][:i], s.GameConnections[gameID][i+1:]...)
+			return
+		}
+	}
+}
+
+// RunServer godoc
+// @Summary Create handlers and bind HTTP server instance to the desired port
 func (s *Server) RunServer(port int) {
 	if port > 65535 || port < 1024 {
 		log.Printf("[ERROR] Invalid port number: %d", port)
