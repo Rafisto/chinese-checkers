@@ -8,7 +8,7 @@ import (
 type Game struct {
 	gameID    int
 	playerNum int
-	players   []string
+	players   []int
 	board     Board
 }
 
@@ -43,20 +43,16 @@ func (g *Game) SetBoard(board Board) {
 	g.board = board
 }
 
-func (g *Game) AddPlayer(username string) error {
-	if g.playerNum != 0 {
-		if !slices.Contains(g.players, username) {
-			if len(g.players) < g.playerNum {
-				g.players = append(g.players, username)
-				return nil
-			} else {
-				return fmt.Errorf("lobby full")
-			}
+func (g *Game) AddPlayer(playerID int) error {
+	if !slices.Contains(g.players, playerID) {
+		if len(g.players) < g.playerNum {
+			g.players = append(g.players, playerID)
+			return nil
 		} else {
-			return fmt.Errorf("username already in use")
+			return fmt.Errorf("lobby full")
 		}
 	} else {
-		return fmt.Errorf("critical error: Lobby not fully initialized")
+		return fmt.Errorf("player is already in this game")
 	}
 }
 
@@ -68,7 +64,7 @@ func (g *Game) GetBoard() Board {
 	return g.board
 }
 
-func (g *Game) GetPlayers() []string {
+func (g *Game) GetPlayers() []int {
 	return g.players
 }
 
