@@ -7,15 +7,19 @@ import (
 	"os"
 	"strconv"
 	"strings"
+
+	"chinese-checkers-client/web"
 )
 
 type CLI struct {
-	client *Client
+	client              *Client
+	webSocketConnection *web.WebSocketConnection
 }
 
 func NewCLI(client *Client) *CLI {
 	cli := &CLI{
-		client: client,
+		client:              client,
+		webSocketConnection: web.NewWebSocketConnection(),
 	}
 	return cli
 }
@@ -32,6 +36,10 @@ func (c *CLI) CLI() {
 		}
 
 		var args []string = strings.Fields(command)
+
+		if len(args) == 0 {
+			continue
+		}
 
 		switch args[0] {
 		case "exit":
@@ -51,15 +59,21 @@ func (c *CLI) CLI() {
 				fmt.Printf("Game creation failed: %s\n", err)
 				continue
 			}
-
 			fmt.Println("Game successfully created")
 		case "join":
-			if len(args) == 1 {
-				fmt.Println("Usage: join [id]")
+			if len(args) == 2 {
+				fmt.Println("Usage: join [GameID] [PlayerID]")
 				continue
 			}
 
 			gameID, err := strconv.Atoi(args[1])
+
+			if err != nil {
+				fmt.Println("ID must be a natural number")
+				continue
+			}
+
+			playerID, err := strconv.Atoi(args[2])
 
 			if err != nil {
 				fmt.Println("ID must be a natural number")
@@ -74,6 +88,27 @@ func (c *CLI) CLI() {
 			}
 
 			fmt.Println("Successfully joined the game")
+			fmt.Println("Connecting to the socket")
+
+			err = c.webSocketConnection.EstablishConnection(gameID, playerID)
+
+			if err != nil {
+				fmt.Printf("Failure connecting to the socket: %s\n", err)
+				continue
+			}
+
+			fmt.Println("Connected to the socket")
+
+			go func() {
+				for {
+					message, err := c.webSocketConnection.ReceiveMessage()
+					if err != nil {
+						fmt.Printf("Failure receiving the message: %s\n", err)
+						break
+					}
+					fmt.Printf("Received message: %s\n", message)
+				}
+			}()
 		case "username":
 			if len(args) == 1 {
 				fmt.Println("Usage: username [username]")
@@ -88,8 +123,17 @@ func (c *CLI) CLI() {
 				continue
 			}
 
-			err := c.client.SendServerMessage(strings.TrimPrefix(command, "chat "))
+			if args[1] == "" {
+				continue
+			}
 
+			if c.webSocketConnection == nil {
+				fmt.Println("You need to join a game first")
+				continue
+			}
+
+			message := strings.Join(args[1:], " ")
+			err := c.webSocketConnection.EmitMessage(message)
 			if err != nil {
 				fmt.Printf("Failure sending the message: %s\n", err)
 			}
