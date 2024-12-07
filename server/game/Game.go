@@ -67,3 +67,15 @@ func (g *Game) GetID() int {
 func (g *Game) GetBoard() Board {
 	return g.board
 }
+
+func (g *Game) GetPlayers() []string {
+	return g.players
+}
+
+func (g *Game) GetPlayerNum() int {
+	return g.playerNum
+}
+
+func (g *Game) GetCurrentPlayerNum() int {
+	return len(g.players)
+}

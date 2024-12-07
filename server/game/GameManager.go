@@ -8,6 +8,7 @@ type GameManager struct {
 func NewGameManager() *GameManager {
 	gameManager := &GameManager{
 		nextID: 0,
+		games:  make(map[int]*Game),
 	}
 	return gameManager
 }
@@ -15,6 +16,7 @@ func NewGameManager() *GameManager {
 func (gm *GameManager) CreateGame(playerNum int, board Board) (*Game, error) {
 	game, err := NewGame(gm.nextID, playerNum, board)
 	if err == nil {
+		gm.games[gm.nextID] = game
 		gm.nextID += 1
 		return game, nil
 	} else {
