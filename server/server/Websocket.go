@@ -26,5 +26,4 @@ func (s *Server) HandleWS(w http.ResponseWriter, r *http.Request) {
 	}
 
 	conn.WriteJSON(map[string]string{"message": "Hello!"})
-	return
 }

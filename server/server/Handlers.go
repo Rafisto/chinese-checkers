@@ -52,7 +52,6 @@ func CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameMana
 	}
 
 	WriteJSON(w, http.StatusMethodNotAllowed, &Response{message: "Method not allowed"})
-	return
 }
 
 // GetGameHandler godoc
@@ -85,7 +84,6 @@ func GetGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager
 	}
 
 	WriteJSON(w, http.StatusMethodNotAllowed, "Method not allowed")
-	return
 }
 
 // GetGamesHandler godoc
@@ -118,7 +116,6 @@ func GetGamesHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManage
 	}
 
 	WriteJSON(w, http.StatusMethodNotAllowed, "Method not allowed")
-	return
 }
 
 // JoinGameHandler godoc
@@ -153,5 +150,4 @@ func JoinGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManage
 	}
 
 	WriteJSON(w, http.StatusMethodNotAllowed, "Method not allowed")
-	return
 }
