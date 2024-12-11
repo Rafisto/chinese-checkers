@@ -15,7 +15,7 @@ import (
 func WriteJSON(w http.ResponseWriter, code int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]interface{}{"message": data})
+	json.NewEncoder(w).Encode(data)
 }
 
 // Response godoc
@@ -56,7 +56,7 @@ func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *g
 			return
 		}
 
-		WriteJSON(w, http.StatusCreated, fmt.Sprintf("Successfully created game with id: %d", game.GetID()))
+		WriteJSON(w, http.StatusCreated, map[string]interface{}{"message": "Successfully created game", "id": game.GetID()})
 		return
 	}
 
@@ -158,7 +158,7 @@ func (s *Server) JoinGameHandler(w http.ResponseWriter, r *http.Request, gm *gam
 			return
 		}
 
-		WriteJSON(w, http.StatusCreated, fmt.Sprintf("Successfully joined the game with player_id: %d", player.GetPlayerID()))
+		WriteJSON(w, http.StatusCreated, map[string]interface{}{"message": "Successfully joined the game", "id": player.GetPlayerID()})
 		return
 	}
 
