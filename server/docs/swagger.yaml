@@ -5,6 +5,30 @@ definitions:
       playerNum:
         type: integer
     type: object
+  server.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  server.GameResponse:
+    properties:
+      currentPlayers:
+        type: integer
+      id:
+        type: integer
+      maxPlayers:
+        type: integer
+    type: object
+  server.JoinGameRequest:
+    properties:
+      username:
+        type: string
+    type: object
+  server.Response:
+    properties:
+      message:
+        type: string
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -30,11 +54,13 @@ paths:
         "200":
           description: Successfully received all active games
           schema:
-            type: string
+            items:
+              $ref: '#/definitions/server.GameResponse'
+            type: array
         "400":
           description: Bad request, missing fields or invalid data
           schema:
-            type: string
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Get all currently active games
       tags:
       - Game
@@ -54,11 +80,11 @@ paths:
         "201":
           description: Successfully created game
           schema:
-            type: string
+            $ref: '#/definitions/server.Response'
         "400":
           description: Bad request, missing fields or invalid data
           schema:
-            type: string
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Create a new game provided its initial parameters
       tags:
       - Game
@@ -67,27 +93,28 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: Username
-        in: query
-        name: username
-        required: true
-        type: string
       - description: Game ID
         in: path
         name: game_id
         required: true
         type: string
+      - description: Player username
+        in: body
+        name: username
+        required: true
+        schema:
+          $ref: '#/definitions/server.JoinGameRequest'
       produces:
       - application/json
       responses:
         "200":
           description: Successfully joined the game
           schema:
-            type: string
+            $ref: '#/definitions/server.Response'
         "400":
           description: Bad request, missing fields or invalid data
           schema:
-            type: string
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Join a game by its ID, provided the username
       tags:
       - Game
@@ -107,11 +134,11 @@ paths:
         "200":
           description: Scuccessfully received the desired game
           schema:
-            type: string
+            $ref: '#/definitions/server.GameResponse'
         "400":
           description: Bad request, missing fields or invalid data
           schema:
-            type: string
+            $ref: '#/definitions/server.ErrorResponse'
       summary: Get a game by its ID
       tags:
       - Game

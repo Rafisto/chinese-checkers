@@ -36,13 +36,16 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully received all active games",
                         "schema": {
-                            "type": "string"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/server.GameResponse"
+                            }
                         }
                     },
                     "400": {
                         "description": "Bad request, missing fields or invalid data",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -73,13 +76,13 @@ const docTemplate = `{
                     "201": {
                         "description": "Successfully created game",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad request, missing fields or invalid data",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -100,30 +103,32 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Username",
-                        "name": "username",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
                         "description": "Game ID",
                         "name": "game_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "Player username",
+                        "name": "username",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.JoinGameRequest"
+                        }
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "Successfully joined the game",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/server.Response"
                         }
                     },
                     "400": {
                         "description": "Bad request, missing fields or invalid data",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -154,13 +159,13 @@ const docTemplate = `{
                     "200": {
                         "description": "Scuccessfully received the desired game",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/server.GameResponse"
                         }
                     },
                     "400": {
                         "description": "Bad request, missing fields or invalid data",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/server.ErrorResponse"
                         }
                     }
                 }
@@ -217,6 +222,44 @@ const docTemplate = `{
             "properties": {
                 "playerNum": {
                     "type": "integer"
+                }
+            }
+        },
+        "server.ErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.GameResponse": {
+            "type": "object",
+            "properties": {
+                "currentPlayers": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "maxPlayers": {
+                    "type": "integer"
+                }
+            }
+        },
+        "server.JoinGameRequest": {
+            "type": "object",
+            "properties": {
+                "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.Response": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string"
                 }
             }
         }
