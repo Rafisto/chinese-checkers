@@ -2,42 +2,12 @@ package web
 
 import (
 	"bytes"
+	"chinese-checkers-client/config"
 	"encoding/json"
 	"fmt"
 	"io"
 	"net/http"
 )
-
-// TODO: Handlers to communicate with the Server API
-
-// WriteJSON godoc
-//
-//	@Summary	Write a JSON response with the provided data and status code
-func WriteJSON(w http.ResponseWriter, code int, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]interface{}{"message": data})
-}
-
-func (c *Client) ListGamesHandler() ([]byte, error) {
-	// TODO change port to variable
-	serverPort := 8080
-	reqURL := fmt.Sprintf("http://localhost:%d/games", serverPort)
-	resp, err := http.Get(reqURL)
-	if err != nil {
-		return nil, err
-	}
-
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return body, nil
-}
 
 type CreateGameResponse struct {
 	GameID  int    `json:"id"`
@@ -61,6 +31,24 @@ type ShowGameRequest struct {
 	GameID int `json:"id"`
 }
 
+func (c *Client) ListGamesHandler() ([]byte, error) {
+	reqURL := config.GetConfig().GetURL() + "/games"
+	resp, err := http.Get(reqURL)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
+}
+
 func (c *Client) CreateGameHandler(playerNum int) (int, error) {
 	jsonBody := &CreateGameRequest{
 		PlayerNum: playerNum,
@@ -73,8 +61,7 @@ func (c *Client) CreateGameHandler(playerNum int) (int, error) {
 
 	bodyReader := bytes.NewReader(body)
 
-	serverPort := 8080
-	reqURL := fmt.Sprintf("http://localhost:%d/games", serverPort)
+	reqURL := config.GetConfig().GetURL() + "/games"
 
 	req, err := http.NewRequest(http.MethodPost, reqURL, bodyReader)
 
@@ -118,8 +105,7 @@ func (c *Client) JoinGameHandler(username string, gameID int) (int, error) {
 
 	bodyReader := bytes.NewReader(body)
 
-	serverPort := 8080
-	reqURL := fmt.Sprintf("http://localhost:%d/games/%d/join", serverPort, gameID)
+	reqURL := config.GetConfig().GetURL() + fmt.Sprintf("/games/%d/join", gameID)
 
 	req, err := http.NewRequest(http.MethodPost, reqURL, bodyReader)
 
@@ -153,9 +139,7 @@ func (c *Client) JoinGameHandler(username string, gameID int) (int, error) {
 }
 
 func (c *Client) ShowGamesHandler(gameID int) ([]byte, error) {
-	// TODO change port to variable
-	serverPort := 8080
-	reqURL := fmt.Sprintf("http://localhost:%d/games/%d", serverPort, gameID)
+	reqURL := config.GetConfig().GetURL() + fmt.Sprintf("/games/%d", gameID)
 	resp, err := http.Get(reqURL)
 	if err != nil {
 		return nil, err

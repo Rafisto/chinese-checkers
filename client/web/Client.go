@@ -1,13 +1,17 @@
 package web
 
+import "fmt"
+
 type Client struct {
-	// socket   string // TODO: change later to socket
-	gameID   int
-	username string
+	webSocketConnection *WebSocketConnection
+	gameID              int
+	username            string
 }
 
 func NewClient() *Client {
-	client := &Client{}
+	client := &Client{
+		webSocketConnection: NewWebSocketConnection(),
+	}
 	return client
 }
 
@@ -27,6 +31,10 @@ func (c *Client) GetUsername() string {
 	return c.username
 }
 
+func (c *Client) GetSocket() *WebSocketConnection {
+	return c.webSocketConnection
+}
+
 func (c *Client) JoinGame(gameID int) (int, error) {
 	return c.JoinGameHandler(c.username, gameID)
 }
@@ -41,12 +49,18 @@ func (c *Client) LeaveGame() error {
 }
 
 func (c *Client) ChangeUsername(newUsername string) error {
-	// TODO: change username on server
 	c.username = newUsername
 	return nil
 }
 
 func (c *Client) SendServerMessage(message string) error {
-	// TODO
+	if c.webSocketConnection == nil {
+		return fmt.Errorf("you need to join a game first")
+	}
+
+	err := c.webSocketConnection.EmitMessage(message)
+	if err != nil {
+		return fmt.Errorf("failure sending the message: %s", err)
+	}
 	return nil
 }

@@ -13,14 +13,12 @@ import (
 )
 
 type CLI struct {
-	client              *web.Client
-	webSocketConnection *web.WebSocketConnection
+	client *web.Client
 }
 
 func NewCLI(client *web.Client) *CLI {
 	cli := &CLI{
-		client:              client,
-		webSocketConnection: web.NewWebSocketConnection(),
+		client: client,
 	}
 	return cli
 }
@@ -118,7 +116,7 @@ func (c *CLI) CLI() {
 			fmt.Println("Successfully joined the game")
 			fmt.Println("Connecting to the socket")
 
-			err = c.webSocketConnection.EstablishConnection(gameID, playerID)
+			err = c.client.GetSocket().EstablishConnection(gameID, playerID)
 
 			if err != nil {
 				fmt.Printf("Failure connecting to the socket: %s\n", err)
@@ -129,7 +127,7 @@ func (c *CLI) CLI() {
 
 			go func() {
 				for {
-					message, err := c.webSocketConnection.ReceiveMessage()
+					message, err := c.client.GetSocket().ReceiveMessage()
 					if err != nil {
 						fmt.Printf("Failure receiving the message: %s\n", err)
 						break
@@ -155,15 +153,12 @@ func (c *CLI) CLI() {
 				continue
 			}
 
-			if c.webSocketConnection == nil {
-				fmt.Println("You need to join a game first")
-				continue
-			}
-
 			message := strings.Join(args[1:], " ")
-			err := c.webSocketConnection.EmitMessage(message)
+
+			err := c.client.SendServerMessage(message)
+
 			if err != nil {
-				fmt.Printf("Failure sending the message: %s\n", err)
+				fmt.Println(err)
 			}
 		default:
 			fmt.Println("Unknown command")
