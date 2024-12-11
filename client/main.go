@@ -9,5 +9,5 @@ func main() {
 	client := web.NewClient()
 	cli := cli.NewCLI(client)
 
-	cli.CLI()
+	cli.Start()
 }

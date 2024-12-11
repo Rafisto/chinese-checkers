@@ -23,7 +23,7 @@ func NewCLI(client *web.Client) *CLI {
 	return cli
 }
 
-func (c *CLI) CLI() {
+func (c *CLI) Start() {
 	exited := false
 	reader := bufio.NewReader(os.Stdin)
 	for !exited {
