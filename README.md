@@ -1,8 +1,13 @@
 ## Chinese Checkers
 
 - [Chinese Checkers](#chinese-checkers)
+  - [Project Outline](#project-outline)
   - [Quick Start Guide](#quick-start-guide)
   - [Documentation](#documentation)
+
+### Project Outline
+
+Project outline is available at [Chinese Checkers DrawIO UML](https://drive.google.com/file/d/1iIDCE1dcRjzx1F8HkmPSoind6I9Joa1u/view?usp=sharing)
 
 ### Quick Start Guide
 
