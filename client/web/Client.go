@@ -1,4 +1,4 @@
-package chineseclient
+package web
 
 type Client struct {
 	// socket   string // TODO: change later to socket
@@ -27,14 +27,12 @@ func (c *Client) GetUsername() string {
 	return c.username
 }
 
-func (c *Client) JoinGame(gameID int) error {
-	// TODO
-	return nil
+func (c *Client) JoinGame(gameID int) (int, error) {
+	return c.JoinGameHandler(c.username, gameID)
 }
 
-func (c *Client) CreateGame() error {
-	// TODO
-	return nil
+func (c *Client) CreateGame(gameID int) (int, error) {
+	return c.CreateGameHandler(gameID)
 }
 
 func (c *Client) LeaveGame() error {

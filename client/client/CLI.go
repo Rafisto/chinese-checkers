@@ -1,10 +1,11 @@
-package chineseclient
+package CLI
 
 import (
 	"bufio"
 	"fmt"
 	"log"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -12,11 +13,11 @@ import (
 )
 
 type CLI struct {
-	client              *Client
+	client              *web.Client
 	webSocketConnection *web.WebSocketConnection
 }
 
-func NewCLI(client *Client) *CLI {
+func NewCLI(client *web.Client) *CLI {
 	cli := &CLI{
 		client:              client,
 		webSocketConnection: web.NewWebSocketConnection(),
@@ -52,17 +53,51 @@ func (c *CLI) CLI() {
 			}
 
 			fmt.Println("Left the game")
+		case "games":
+			body, err := c.client.ListGamesHandler()
+
+			if err != nil {
+				fmt.Printf("Error getting available games: %s\n", err)
+			}
+
+			fmt.Println(string(body))
 		case "create":
-			err := c.client.CreateGame()
+			if len(args) == 1 {
+				fmt.Println("Usage create [playerNumber]")
+				continue
+			}
+
+			if c.client.GetUsername() == "" {
+				fmt.Println("Please set a username first with: username [username]")
+				continue
+			}
+
+			playerNum, err := strconv.Atoi(args[1])
+
+			if err != nil {
+				fmt.Println("Player must be a natural number")
+				continue
+			}
+
+			if !slices.Contains([]int{2, 3, 4, 6}, playerNum) {
+				fmt.Println("Player number has to be one of: 2, 3, 4, 6")
+			}
+
+			gameID, err := c.client.CreateGame(playerNum)
 
 			if err != nil {
 				fmt.Printf("Game creation failed: %s\n", err)
 				continue
 			}
-			fmt.Println("Game successfully created")
+			fmt.Printf("Game successfully created with ID: %d\n", gameID)
 		case "join":
-			if len(args) == 2 {
-				fmt.Println("Usage: join [GameID] [PlayerID]")
+			if len(args) == 1 {
+				fmt.Println("Usage: join [GameID]")
+				continue
+			}
+
+			if c.client.GetUsername() == "" {
+				fmt.Println("Please set a username first with: username [username]")
 				continue
 			}
 
@@ -73,14 +108,7 @@ func (c *CLI) CLI() {
 				continue
 			}
 
-			playerID, err := strconv.Atoi(args[2])
-
-			if err != nil {
-				fmt.Println("ID must be a natural number")
-				continue
-			}
-
-			err = c.client.JoinGame(gameID)
+			playerID, err := c.client.JoinGame(gameID)
 
 			if err != nil {
 				fmt.Printf("Failure joining the game: %s\n", err)
