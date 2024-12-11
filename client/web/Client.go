@@ -41,8 +41,8 @@ func (c *Client) ListGames() ([]*ListGamesResponse, error) {
 	return c.ListGamesHandler()
 }
 
-func (c *Client) CreateGame(gameID int) (int, error) {
-	return c.CreateGameHandler(gameID)
+func (c *Client) CreateGame(playerNum int) (int, error) {
+	return c.CreateGameHandler(playerNum)
 }
 
 func (c *Client) JoinGame(gameID int) (int, error) {

@@ -68,7 +68,7 @@ func (c *CLI) Start() {
 			playerNum, err := strconv.Atoi(args[1])
 
 			if err != nil {
-				fmt.Println("Player must be a natural number")
+				fmt.Println("Player number must be a natural number")
 				continue
 			}
 
@@ -157,7 +157,7 @@ func (c *CLI) Start() {
 						fmt.Printf("Failure receiving the message: %s\n", err)
 						break
 					}
-					fmt.Printf("Received message: %s\n", message)
+					fmt.Printf("%s\n", message)
 				}
 			}()
 		case "username":
