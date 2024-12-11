@@ -1,4 +1,4 @@
-package CLI
+package cli
 
 import (
 	"bufio"
@@ -43,14 +43,6 @@ func (c *CLI) CLI() {
 		switch args[0] {
 		case "exit":
 			exited = true
-		case "leave":
-			err := c.client.LeaveGame()
-
-			if err != nil {
-				fmt.Println("There is no escape")
-			}
-
-			fmt.Println("Left the game")
 		case "games":
 			body, err := c.client.ListGamesHandler()
 
@@ -58,7 +50,10 @@ func (c *CLI) CLI() {
 				fmt.Printf("Error getting available games: %s\n", err)
 			}
 
-			fmt.Println(string(body))
+			fmt.Println("Available games:")
+			for _, element := range body {
+				fmt.Printf("%d: %d/%d\n", element.GameID, element.CurrentPlayers, element.MaxPlayers)
+			}
 		case "create":
 			if len(args) == 1 {
 				fmt.Println("Usage create [playerNumber]")
@@ -88,6 +83,36 @@ func (c *CLI) CLI() {
 				continue
 			}
 			fmt.Printf("Game successfully created with ID: %d\n", gameID)
+
+			playerID, err := c.client.JoinGame(gameID)
+
+			if err != nil {
+				fmt.Printf("Failure joining the game: %s\n", err)
+				continue
+			}
+
+			fmt.Println("Successfully joined the game")
+			fmt.Println("Connecting to the socket")
+
+			err = c.client.GetSocket().EstablishConnection(gameID, playerID)
+
+			if err != nil {
+				fmt.Printf("Failure connecting to the socket: %s\n", err)
+				continue
+			}
+
+			fmt.Println("Connected to the socket")
+
+			go func() {
+				for {
+					message, err := c.client.GetSocket().ReceiveMessage()
+					if err != nil {
+						fmt.Printf("Failure receiving the message: %s\n", err)
+						break
+					}
+					fmt.Printf("%s\n", message)
+				}
+			}()
 		case "join":
 			if len(args) == 1 {
 				fmt.Println("Usage: join [GameID]")

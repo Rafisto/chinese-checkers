@@ -9,6 +9,12 @@ import (
 	"net/http"
 )
 
+type ListGamesResponse struct {
+	GameID         int `json:"id"`
+	CurrentPlayers int `json:"currentPlayers"`
+	MaxPlayers     int `json:"maxPlayers"`
+}
+
 type CreateGameResponse struct {
 	GameID  int    `json:"id"`
 	Message string `json:"message"`
@@ -31,20 +37,25 @@ type ShowGameRequest struct {
 	GameID int `json:"id"`
 }
 
-func (c *Client) ListGamesHandler() ([]byte, error) {
+func (c *Client) ListGamesHandler() ([]*ListGamesResponse, error) {
 	reqURL := config.GetConfig().GetURL() + "/games"
 	resp, err := http.Get(reqURL)
 	if err != nil {
 		return nil, err
 	}
 
-	defer resp.Body.Close()
-
-	body, err := io.ReadAll(resp.Body)
-
-	if err != nil {
-		return nil, err
+	var body []*ListGamesResponse
+	if err := json.NewDecoder(resp.Body).Decode(&body); err != nil {
+		return nil, fmt.Errorf("failed to decode request: %s", err)
 	}
+	// err = json.Unmarshal(resp.Body, games)
+	// defer resp.Body.Close()
+
+	// body, err := io.ReadAll(resp.Body)
+
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	return body, nil
 }
@@ -121,9 +132,6 @@ func (c *Client) JoinGameHandler(username string, gameID int) (int, error) {
 	if err != nil {
 		return -1, err
 	}
-
-	fmt.Println(resp.StatusCode)
-	fmt.Println(resp)
 
 	if resp.StatusCode != 201 {
 		return -1, fmt.Errorf("invalid response")

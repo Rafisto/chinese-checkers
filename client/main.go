@@ -1,7 +1,7 @@
 package main
 
 import (
-	cli "chinese-checkers-client/client"
+	cli "chinese-checkers-client/cli"
 	"chinese-checkers-client/web"
 )
 

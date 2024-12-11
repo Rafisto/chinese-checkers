@@ -1,6 +1,8 @@
 package web
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type Client struct {
 	webSocketConnection *WebSocketConnection
@@ -35,17 +37,16 @@ func (c *Client) GetSocket() *WebSocketConnection {
 	return c.webSocketConnection
 }
 
-func (c *Client) JoinGame(gameID int) (int, error) {
-	return c.JoinGameHandler(c.username, gameID)
+func (c *Client) ListGames() {
+
 }
 
 func (c *Client) CreateGame(gameID int) (int, error) {
 	return c.CreateGameHandler(gameID)
 }
 
-func (c *Client) LeaveGame() error {
-	// TODO
-	return nil
+func (c *Client) JoinGame(gameID int) (int, error) {
+	return c.JoinGameHandler(c.username, gameID)
 }
 
 func (c *Client) ChangeUsername(newUsername string) error {

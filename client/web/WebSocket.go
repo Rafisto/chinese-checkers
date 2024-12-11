@@ -1,6 +1,7 @@
 package web
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/gorilla/websocket"
@@ -54,6 +55,13 @@ func (wc *WebSocketConnection) ReceiveMessage() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	var Message struct {
+		Content string `json:"message"`
+	}
+	err = json.Unmarshal(msg, &Message)
 
-	return string(msg), nil
+	if err != nil {
+		return "", err
+	}
+	return Message.Content, nil
 }
