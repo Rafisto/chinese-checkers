@@ -37,8 +37,8 @@ func (c *Client) GetSocket() *WebSocketConnection {
 	return c.webSocketConnection
 }
 
-func (c *Client) ListGames() {
-
+func (c *Client) ListGames() ([]*ListGamesResponse, error) {
+	return c.ListGamesHandler()
 }
 
 func (c *Client) CreateGame(gameID int) (int, error) {

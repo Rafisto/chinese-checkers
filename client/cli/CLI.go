@@ -44,7 +44,7 @@ func (c *CLI) Start() {
 		case "exit":
 			exited = true
 		case "games":
-			body, err := c.client.ListGamesHandler()
+			body, err := c.client.ListGames()
 
 			if err != nil {
 				fmt.Printf("Error getting available games: %s\n", err)
