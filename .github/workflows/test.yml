@@ -1,0 +1,35 @@
+name: Go
+
+on:
+  push:
+    branches: [ "master", "ci" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Go
+      uses: actions/setup-go@v4
+      with:
+        go-version: '1.23.4'
+
+    - name: Install Dependencies
+      working-directory: ./server
+      run: go mod tidy
+
+    - name: Build
+      working-directory: ./server
+      run: go build
+
+    - name: Lint
+      working-directory: ./server
+      run: go vet ./...
+
+    - name: Test
+      working-directory: ./server
+      run: go test -v ./...
