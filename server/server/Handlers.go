@@ -11,18 +11,43 @@ import (
 
 // WriteJSON godoc
 //
-//	@Summary	Write a JSON response with the provided data and status code
+//	@Summary Write a JSON response with the provided data and status code
 func WriteJSON(w http.ResponseWriter, code int, data interface{}) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(code)
-	json.NewEncoder(w).Encode(map[string]interface{}{"message": data})
+	json.NewEncoder(w).Encode(data)
 }
 
 // Response godoc
 //
 //	@Summary	Response message
 type Response struct {
-	message string
+	Message string `json:"message"`
+}
+
+// WriteJSONMessage godoc
+//
+// @Summary Write a Json message response in the form of {"message": message} provided a message
+func WriteJSONMessage(w http.ResponseWriter, code int, message string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(Response{Message: message})
+}
+
+// ErrorResponse godoc
+//
+// @Summary	Error message
+type ErrorResponse struct {
+	Error string `json:"error"`
+}
+
+// WriteJSONError godoc
+//
+// @Summary Write a JSON error response in the form of {"error": error} provided the error
+func WriteJSONError(w http.ResponseWriter, code int, err string) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(code)
+	json.NewEncoder(w).Encode(ErrorResponse{Error: err})
 }
 
 // CreateGameRequest godoc
@@ -39,14 +64,14 @@ type CreateGameRequest struct {
 //	@Accept		json
 //	@Produce	json
 //	@Param		playerNum	body		CreateGameRequest	true	"Initial game parameters"
-//	@Success	201			{object}	string				"Successfully created game"
-//	@Failure	400			{object}	string				"Bad request, missing fields or invalid data"
+//	@Success	201			{object}	Response				"Successfully created game"
+//	@Failure	400			{object}	ErrorResponse				"Bad request, missing fields or invalid data"
 //	@Router		/games [post].
 func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
 	if r.Method == http.MethodPost {
 		var req CreateGameRequest
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			WriteJSON(w, http.StatusBadRequest, fmt.Sprintf("Failed to decode request: %v", err))
+			WriteJSONError(w, http.StatusBadRequest, fmt.Sprintf("Failed to decode request: %v", err))
 			return
 		}
 
@@ -56,11 +81,17 @@ func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *g
 			return
 		}
 
-		WriteJSON(w, http.StatusCreated, fmt.Sprintf("Successfully created game with id: %d", game.GetID()))
+		WriteJSON(w, http.StatusCreated, map[string]interface{}{"message": "Successfully created game", "id": game.GetID()})
 		return
 	}
 
-	WriteJSON(w, http.StatusMethodNotAllowed, "Method not allowed")
+	WriteJSONError(w, http.StatusMethodNotAllowed, "Method not allowed")
+}
+
+type GameResponse struct {
+	ID             int `json:"id"`
+	CurrentPlayers int `json:"currentPlayers"`
+	MaxPlayers     int `json:"maxPlayers"`
 }
 
 // GetGameHandler godoc
@@ -70,31 +101,38 @@ func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *g
 //	@Accept		json
 //	@Produce	json
 //	@Param		id	path		string	true	"Game ID"
-//	@Success	200	{object}	string	"Scuccessfully received the desired game"
-//	@Failure	400	{object}	string	"Bad request, missing fields or invalid data"
+//	@Success	200	{object}	GameResponse	"Scuccessfully received the desired game"
+//	@Failure	400	{object}	ErrorResponse	"Bad request, missing fields or invalid data"
 //	@Router		/games/{id} [get].
 func (s *Server) GetGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
 	id := r.PathValue("id")
 
 	id_int, err := strconv.Atoi(id)
 	if err != nil {
-		WriteJSON(w, http.StatusBadRequest, "Invalid game ID")
+		WriteJSONError(w, http.StatusBadRequest, "GameID must be an integer.")
 		return
 	}
 
 	if r.Method == http.MethodGet {
 		game := gm.GetGames()[id_int]
 		if game == nil {
-			WriteJSON(w, http.StatusNotFound, "Game not found")
+			WriteJSONError(w, http.StatusNotFound, fmt.Sprintf("Game with GameID=%d not found", id_int))
 			return
 		}
 
-		WriteJSON(w, http.StatusOK, game)
+		WriteJSON(w, http.StatusOK, GameResponse{
+			ID:             game.GetID(),
+			CurrentPlayers: game.GetCurrentPlayerNum(),
+			MaxPlayers:     game.GetPlayerNum(),
+		})
+
 		return
 	}
 
-	WriteJSON(w, http.StatusMethodNotAllowed, "Method not allowed")
+	WriteJSONError(w, http.StatusMethodNotAllowed, "Method not allowed")
 }
+
+type GamesResponse []GameResponse
 
 // GetGamesHandler godoc
 //
@@ -102,31 +140,40 @@ func (s *Server) GetGameHandler(w http.ResponseWriter, r *http.Request, gm *game
 //	@Tags		Game
 //	@Accept		json
 //	@Produce	json
-//	@Success	200	{object}	string	"Successfully received all active games"
-//	@Failure	400	{object}	string	"Bad request, missing fields or invalid data"
+//	@Success	200	{object}	GamesResponse	"Successfully received all active games"
+//	@Failure	400	{object}	ErrorResponse	"Bad request, missing fields or invalid data"
 //	@Router		/games [get].
 func (s *Server) GetGamesHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
 	if r.Method == http.MethodGet {
 		games := gm.GetGames()
 
 		if len(games) == 0 {
-			WriteJSON(w, http.StatusNotFound, "[]")
+			WriteJSON(w, http.StatusOK, []interface{}{})
 			return
 		}
 
-		gameIDs := []int{}
-
-		for id := range games {
-			if games[id].GetCurrentPlayerNum() != games[id].GetPlayerNum() {
-				gameIDs = append(gameIDs, id)
-			}
+		gameList := make(GamesResponse, 0)
+		for _, game := range games {
+			gameList = append(gameList, struct {
+				ID             int `json:"id"`
+				CurrentPlayers int `json:"currentPlayers"`
+				MaxPlayers     int `json:"maxPlayers"`
+			}{
+				ID:             game.GetID(),
+				CurrentPlayers: game.GetCurrentPlayerNum(),
+				MaxPlayers:     game.GetPlayerNum(),
+			})
 		}
 
-		WriteJSON(w, http.StatusOK, gameIDs)
+		WriteJSON(w, http.StatusOK, gameList)
 		return
 	}
 
-	WriteJSON(w, http.StatusMethodNotAllowed, "Method not allowed")
+	WriteJSONError(w, http.StatusMethodNotAllowed, "Method not allowed")
+}
+
+type JoinGameRequest struct {
+	Username string `json:"username"`
 }
 
 // JoinGameHandler godoc
@@ -135,32 +182,38 @@ func (s *Server) GetGamesHandler(w http.ResponseWriter, r *http.Request, gm *gam
 //	@Tags		Game
 //	@Accept		json
 //	@Produce	json
-//	@Param		username	query		string	true	"Username"
 //	@Param		game_id		path		string	true	"Game ID"
-//	@Success	200			{object}	string	"Successfully joined the game"
-//	@Failure	400			{object}	string	"Bad request, missing fields or invalid data"
+//	@Param		username	body		JoinGameRequest	true	"Player username"
+//	@Success	200			{object}	Response	"Successfully joined the game"
+//	@Failure	400			{object}	ErrorResponse	"Bad request, missing fields or invalid data"
 //	@Router		/games/{game_id}/join [post].
 func (s *Server) JoinGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
 	game_id := r.PathValue("game_id")
 
 	game_id_int, err := strconv.Atoi(game_id)
 	if err != nil {
-		WriteJSON(w, http.StatusBadRequest, "Invalid game ID")
+		WriteJSONError(w, http.StatusBadRequest, "GameID must be an integer.")
 		return
 	}
 
-	username := r.URL.Query().Get("username")
+	var req JoinGameRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		WriteJSONError(w, http.StatusBadRequest, fmt.Sprintf("Failed to decode request: %v", err))
+		return
+	}
+
+	username := req.Username
 
 	if r.Method == http.MethodPost {
 		player, err := gm.JoinGame(game_id_int, username)
 		if err != nil {
-			WriteJSON(w, http.StatusBadRequest, "Unable to join to the game")
+			WriteJSONError(w, http.StatusBadRequest, "Unable to join to the game")
 			return
 		}
 
-		WriteJSON(w, http.StatusCreated, fmt.Sprintf("Successfully joined the game with player_id: %d", player.GetPlayerID()))
+		WriteJSON(w, http.StatusCreated, map[string]interface{}{"message": "Successfully joined the game", "id": player.GetPlayerID()})
 		return
 	}
 
-	WriteJSON(w, http.StatusMethodNotAllowed, "Method not allowed")
+	WriteJSONError(w, http.StatusMethodNotAllowed, "Method not allowed")
 }

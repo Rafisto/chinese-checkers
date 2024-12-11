@@ -1,10 +1,13 @@
 package main
 
-import chineseclient "chinese-checkers-client/client"
+import (
+	cli "chinese-checkers-client/cli"
+	"chinese-checkers-client/web"
+)
 
 func main() {
-	client := chineseclient.NewClient()
-	cli := chineseclient.NewCLI(client)
+	client := web.NewClient()
+	cli := cli.NewCLI(client)
 
-	cli.CLI()
+	cli.Start()
 }
