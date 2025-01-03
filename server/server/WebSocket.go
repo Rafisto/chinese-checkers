@@ -1,7 +1,6 @@
 package server
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 	"slices"
@@ -119,6 +118,7 @@ func (s *Server) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
-		WBroadcastToGame(gameID_int, fmt.Sprintf("Player %d: %s", playerID_int, msg), s)
+		// WBroadcastToGame(gameID_int, fmt.Sprintf("Player %d: %s", playerID_int, msg), s)
+		WBroadcastToGame(gameID_int, msg, s)
 	}
 }

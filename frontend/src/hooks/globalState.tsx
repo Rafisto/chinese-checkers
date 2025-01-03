@@ -11,9 +11,11 @@ interface GlobalStateContextType {
     gameID: number;
     setGameID: (gameID: number) => void;
     boardState: number[][];
-    setBoardState: (gameState: number[][]) => void;
+    setBoardState: (gamestate: ((prevGamStage: number[][]) => number[][]) | number[][]) => void;
     auditLog: string[];
-    setAuditLog: (auditLog: string[]) => void;
+    setAuditLog: (auditLog: ((prevAuditLog: string[]) => string[]) | string[]) => void;
+    ws: WebSocket | null;
+    setWS: (ws: WebSocket | null) => void;
 }
 
 const GlobalStateContext = React.createContext<GlobalStateContextType | undefined>(undefined);
@@ -29,6 +31,7 @@ export const GlobalStateProvider = ({ children }: GlobalStateProviderProps) => {
     const [gameID, setGameID] = React.useState<number>(-1);
     const [boardState, setBoardState] = React.useState<number[][]>(TwoTeamState);
     const [auditLog, setAuditLog] = React.useState<string[]>(["Chinese-Checkers log"]);
+    const [ws, setWS] = React.useState<WebSocket | null>(null);
 
     const value = {
         serverAddress,
@@ -42,7 +45,9 @@ export const GlobalStateProvider = ({ children }: GlobalStateProviderProps) => {
         boardState,
         setBoardState,
         auditLog,
-        setAuditLog
+        setAuditLog,
+        ws,
+        setWS,
     };
 
     return (

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useGlobalState } from "./hooks/globalState";
 import Connect from "./lobby/connect";
 import Create from "./lobby/create"
@@ -8,34 +8,41 @@ import Stats from "./lobby/stats";
 const Menu = () => {
     const [connected, setConnected] = useState<boolean>(false);
     const [joined, setJoined] = useState<boolean>(false);
-    const { serverAddress, auditLog, setAuditLog, gameID, playerID } = useGlobalState();
+    const { serverAddress, setAuditLog, gameID, playerID, ws, setWS } = useGlobalState();
 
-    const ws = useRef<WebSocket | null>(null);
+    // const ws = useRef<WebSocket | null>(null);
 
     useEffect(() => {
         if (!joined) {
             return;
         }
 
-        ws.current = new WebSocket(`${serverAddress.replace('http://', 'ws://')}/ws?gameID=${gameID}&playerID=${playerID}`);
-        ws.current.onopen = () => {
-            setAuditLog([...auditLog, "Connected to websocket"]);
+        let ws = new WebSocket(`${serverAddress.replace('http://', 'ws://')}/ws?gameID=${gameID}&playerID=${playerID}`);
+        ws.onopen = () => {
+            setAuditLog((prevAuditLog: string[]) => [...prevAuditLog, "Connected to websocket"]);
         }
-        ws.current.onclose = () => {
-            setAuditLog([...auditLog, "Disconnected from websocket"]);
-        }
-        ws.current.onmessage = (event) => {
-            const message = JSON.parse(event.data);
-            setAuditLog([...auditLog, `Received message: ${message.message}`]);
+        ws.onclose = () => {
+            setAuditLog((prevAuditLog: string[]) => [...prevAuditLog, "Disconnected from websocket"]);
         }
 
-        const wsCurrent = ws.current;
+        setWS(ws);
+
+        const wsCurrent = ws;
 
         return () => {
             wsCurrent.close();
+            setWS(null);
         }
-    }, [joined]);
 
+    }, [joined, serverAddress, gameID, playerID, setAuditLog]);
+
+    const sendJSON = () => {
+        if (!ws) {
+            return;
+        }
+
+        ws.send(JSON.stringify({ message: "Hello, server!" }));
+    }
 
     return (
         <div className="menu">
@@ -62,6 +69,7 @@ const Menu = () => {
                 <>
                     <hr />
                     <Stats />
+                    <button onClick={() => sendJSON()}>Send JSON</button>
                 </>
             }
         </div>

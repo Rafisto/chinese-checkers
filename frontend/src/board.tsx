@@ -73,7 +73,7 @@ type Point = {
 }
 
 const Board = () => {
-    const { boardState, setBoardState } = useGlobalState();
+    const { boardState, setBoardState, playerID, ws, setAuditLog } = useGlobalState();
     const [selectedTile, setSelectedTile] = useState<Point | null>(null);
     const [availableMoves, setAvailableMoves] = useState<Point[]>([]);
 
@@ -84,6 +84,20 @@ const Board = () => {
             setAvailableMoves(moves);
         }
     }, [selectedTile]);
+
+    useEffect(() => {
+        if (ws) {
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                const message = JSON.parse(data.message);
+                console.log(message);
+                setAuditLog((prevAuditLog: string[]) => [...prevAuditLog, `Received message: ${data}`]);
+                if (message.type === "player" && message.action === "move" && message.player_id !== playerID) {
+                    setBoardState((bs) => PerformMove(bs, message.start, message.end));
+                }
+            }
+        }
+    }, [ws]);
 
     const handleTryMovePiece = (end: Point) => {
         if (selectedTile == undefined) {
@@ -98,8 +112,31 @@ const Board = () => {
             return;
         }
         setBoardState(PerformMove(boardState, { row: selectedTile.row, col: selectedTile.col }, end));
+        sendNewMove(playerID, { row: selectedTile.row, col: selectedTile.col }, end);
         setSelectedTile(null);
         setAvailableMoves([]);
+    }
+
+    const sendNewMove = (playerID: number, start: Point, end: Point) => {
+        if (!ws) {
+            return;
+        }
+
+        ws.send(JSON.stringify(
+            {
+                "type": "player",
+                "action": "move",
+                "player_id": playerID,
+                "start": {
+                    "row": start.row,
+                    "col": start.col,
+                },
+                "end": {
+                    "row": end.row,
+                    "col": end.col,
+                }
+            }
+        ));
     }
 
     return (
