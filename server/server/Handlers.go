@@ -176,6 +176,11 @@ type JoinGameRequest struct {
 	Username string `json:"username"`
 }
 
+type JoinGameResponse struct {
+	Message string `json:"message"`
+	ID      int    `json:"id"`
+}
+
 // JoinGameHandler godoc
 //
 //	@Summary	Join a game by its ID, provided the username
@@ -184,7 +189,7 @@ type JoinGameRequest struct {
 //	@Produce	json
 //	@Param		game_id		path		string	true	"Game ID"
 //	@Param		username	body		JoinGameRequest	true	"Player username"
-//	@Success	200			{object}	Response	"Successfully joined the game"
+//	@Success	200			{object}	JoinGameResponse	"Successfully joined the game"
 //	@Failure	400			{object}	ErrorResponse	"Bad request, missing fields or invalid data"
 //	@Router		/games/{game_id}/join [post].
 func (s *Server) JoinGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {

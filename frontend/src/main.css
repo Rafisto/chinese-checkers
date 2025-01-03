@@ -1,0 +1,143 @@
+html {
+    font-family: monospace;
+    font-size: 11pt;
+    box-sizing: border-box;
+    background-color: #242424;
+    color: #eee;
+}
+
+
+h1 {
+    font-size: 2em;
+    margin-bottom: 0.5em;
+}
+
+h2 {
+    font-size: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+p {
+    font-size: 1em;
+    line-height: 1.5;
+    margin-bottom: 1em;
+}
+
+input {
+    box-sizing: border-box;
+    padding: 10px;
+    background-color: #444;
+    color: #eee;
+    width: 100%;
+    margin-bottom: 1em;
+    border: 1px solid #444;
+    border-radius: 5px;
+}
+
+select {
+    width: 100%;
+    background-color: #444;
+    color: #eee;
+    padding: 10px;
+    margin-bottom: 1em;
+    border: 1px solid #444;
+    border-radius: 5px;
+}
+
+
+button {
+
+    background-color: #444;
+    color: #eee;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #555;
+}
+
+label {
+    font-size: 1em;
+    margin-bottom: 0.5em;
+    display: block;
+}
+
+hr {
+    margin: 1em 0;
+    border: none;
+    border-top: 1px solid #444;
+}
+
+html,
+body,
+#root,
+.grid {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+}
+
+
+.grid {
+    display: grid;
+    grid-template-columns: 80% 20%;
+}
+
+
+.menu {
+    overflow-y: scroll;
+    padding: 8px;
+    background-color: #323232;
+}
+
+.board {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.board-row {
+    display: flex;
+    flex-direction: row;
+}
+
+.board-tile {
+    width: 30px;
+    height: 46px;
+    user-select: none;
+}
+
+.board-tile-circle {
+    margin-block: 8px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #000;
+}
+
+.board-tile-circle-active:hover {
+    box-shadow: 0 0 10px currentColor;
+}
+
+.wide {
+    width: 100%;
+    padding: 10px 20px;
+}
+
+.audit-log {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20%;
+    height: 50%;
+    overflow-y:scroll;
+    scroll-behavior: smooth;
+}
