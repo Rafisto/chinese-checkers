@@ -44,7 +44,7 @@ const BoardTile: React.FC<BoardTileProps> = ({ value, state, selectPiece, tryMov
                     onClick={() => tryMovePiece()}
                     className={"board-tile-circle"}
                     style={{
-                        border: `4px solid ${(available) ? 'white' : colors[value]}`,
+                        border: `2px solid ${(available) ? 'white' : colors[value]}`,
                         backgroundColor: 'transparent',
                     }}>
                 </div>

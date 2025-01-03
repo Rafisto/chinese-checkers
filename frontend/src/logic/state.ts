@@ -95,7 +95,6 @@ const FindMoves = (
                 !passMap[newRow][newCol]
             ) {
                 const newPosition = { row: newRow, col: newCol };
-                console.log(newPosition);
                 moves.push(newPosition);
             }
         }
@@ -120,7 +119,6 @@ const FindMoves = (
             !passMap[newRow][newCol]
         ) {
             const newPosition = { row: newRow, col: newCol };
-            console.log(newPosition);
             moves.push(newPosition);
             FindMoves(state, newPosition, passMap, moves);
         }
