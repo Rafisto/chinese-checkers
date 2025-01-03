@@ -12,6 +12,8 @@ interface GlobalStateContextType {
     setGameID: (gameID: number) => void;
     boardState: number[][];
     setBoardState: (gameState: number[][]) => void;
+    auditLog: string[];
+    setAuditLog: (auditLog: string[]) => void;
 }
 
 const GlobalStateContext = React.createContext<GlobalStateContextType | undefined>(undefined);
@@ -26,6 +28,7 @@ export const GlobalStateProvider = ({ children }: GlobalStateProviderProps) => {
     const [playerID, setPlayerID] = React.useState<number>(-1);
     const [gameID, setGameID] = React.useState<number>(-1);
     const [boardState, setBoardState] = React.useState<number[][]>(TwoTeamState);
+    const [auditLog, setAuditLog] = React.useState<string[]>(["Chinese-Checkers log"]);
 
     const value = {
         serverAddress,
@@ -37,7 +40,9 @@ export const GlobalStateProvider = ({ children }: GlobalStateProviderProps) => {
         gameID,
         setGameID,
         boardState,
-        setBoardState
+        setBoardState,
+        auditLog,
+        setAuditLog
     };
 
     return (

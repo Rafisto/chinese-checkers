@@ -131,3 +131,13 @@ body,
     width: 100%;
     padding: 10px 20px;
 }
+
+.audit-log {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 20%;
+    height: 50%;
+    overflow-y:scroll;
+    scroll-behavior: smooth;
+}

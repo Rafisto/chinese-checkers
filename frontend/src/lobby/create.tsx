@@ -4,30 +4,23 @@ import StyledButton from "../components/styledButton";
 import { useGlobalState } from "../hooks/globalState";
 
 const Create = () => {
-    const { serverAddress } = useGlobalState();
+    const { serverAddress, auditLog, setAuditLog } = useGlobalState();
 
     const [numPlayers, setNumPlayers] = useState<number>(2);
 
     const [loading, setLoading] = useState<boolean>(false);
-    const [response, setResponse] = useState<string>("");
-    const [error, setError] = useState<string>("");
 
     const handleCreateGame = async () => {
         setLoading(true);
-        setResponse("");
-        setError("");
         try {
             await APICreateGame(serverAddress, numPlayers);
-            setResponse("Game Created");
+            setAuditLog([...auditLog, "Game Created"]);
         } catch (error) {
-            console.error(error);
-            setError("Failed to create game");
+            setAuditLog([...auditLog, "Failed to create game"]);
         }
         setLoading(false);
 
         setTimeout(() => {
-            setResponse("");
-            setError("");
         }, 1000);
     }
 
@@ -44,8 +37,6 @@ const Create = () => {
             </select>
             <br />
             <StyledButton text={"Create Game"} handleClick={handleCreateGame} loading={loading} loadingText={"Creating Game..."} className={"wide"} />
-            {response && <span style={{ color: "green" }}>{response}</span>}
-            {error && <span style={{ color: "red" }}>{error}</span>}
         </div>
     )
 

@@ -7,7 +7,7 @@ type JoinProps = {
 }
 
 const Join = ({setJoined}: JoinProps) => {
-    const { serverAddress, playerName, setPlayerID } = useGlobalState();
+    const { serverAddress, playerName, setPlayerID, setGameID, auditLog, setAuditLog } = useGlobalState();
     const [games, setGames] = useState<ListGameResponse[]>([]);
 
     useEffect(() => {
@@ -23,11 +23,14 @@ const Join = ({setJoined}: JoinProps) => {
         try {
             const resp = await APIJoinGame(serverAddress, gameID, playerName);
             setPlayerID(resp.id);
+            setGameID(gameID);
             setJoined(true);
+            setAuditLog([...auditLog, `Joined game ${gameID}, my playerID is ${resp.id}`]);
         }
         catch (error) {
             console.error(error);
             setJoined(false);
+            setAuditLog([...auditLog, `Failed to join game ${gameID}`]);
         }
     }
 

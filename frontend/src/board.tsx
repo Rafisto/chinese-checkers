@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useGlobalState } from "./hooks/globalState";
 import { LogicBoard } from "./logic/board";
 import { FindMoves, PerformMove } from "./logic/state";
+import AuditLog from "./components/auditLog";
 
 const colors: Record<string, string> = {
     '-1': 'transparent',
@@ -103,6 +104,7 @@ const Board = () => {
 
     return (
         <div className="board">
+            <AuditLog />
             {LogicBoard.map((row: number[], rowIndex: number) => (
                 <div key={rowIndex} className="board-row">
                     {row.map((tile, colIndex) => (
