@@ -23,13 +23,12 @@ func NewGameManager() *GameManager {
 
 func (gm *GameManager) CreateGame(playerNum int, board Board) (*Game, error) {
 	game, err := NewGame(gm.nextGameID, playerNum, board)
-	if err == nil {
-		gm.games[gm.nextGameID] = game
-		gm.nextGameID += 1
-		return game, nil
-	} else {
+	if err != nil {
 		return nil, err
 	}
+	gm.games[gm.nextGameID] = game
+	gm.nextGameID += 1
+	return game, nil
 }
 
 func (gm *GameManager) GetGames() map[int]*Game {
@@ -38,13 +37,12 @@ func (gm *GameManager) GetGames() map[int]*Game {
 
 func (gm *GameManager) createPlayer(username string, gameID int) (*Player, error) {
 	player, err := NewPlayer(gm.nextPlayerID, username, gameID)
-	if err == nil {
-		gm.players[gm.nextPlayerID] = player
-		gm.nextPlayerID += 1
-		return player, nil
-	} else {
+	if err != nil {
 		return nil, err
 	}
+	gm.players[gm.nextPlayerID] = player
+	gm.nextPlayerID += 1
+	return player, nil
 }
 
 func (gm *GameManager) GetPlayers() map[int]*Player {

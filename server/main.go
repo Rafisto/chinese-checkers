@@ -20,18 +20,13 @@ import (
 // @externalDocs.description	OpenAPI
 // @externalDocs.url			https://swagger.io/resources/open-api/
 func main() {
-	board, err := game.NewClassicBoard()
+	board, err := game.NewClassicBoard(6)
 	if err != nil {
 		print("oops")
 	}
 	board.PrintBoard()
 
-	pawns, err := game.NewClassicPawns(6)
-	if err != nil {
-		print("oops")
-	}
-
-	pawns.PrintPawns()
+	board.GetPawns().PrintPawns()
 
 	s := server.NewServer()
 

@@ -2,11 +2,6 @@ package game
 
 import "fmt"
 
-type Point struct {
-	x int
-	y int
-}
-
 type ClassicPawns struct {
 	pawns map[Point]int
 }
@@ -31,19 +26,19 @@ func NewClassicPawns(playerNum int) (*ClassicPawns, error) {
 		classicPawns.fill2Players()
 	case 3:
 		classicPawns.fill1()
-		classicPawns.fill4()
-		classicPawns.fill5()
+		classicPawns.fill4(2)
+		classicPawns.fill5(3)
 	case 4:
 		classicPawns.fill1()
 		classicPawns.fill2()
 		classicPawns.fill3()
-		classicPawns.fill4()
+		classicPawns.fill4(4)
 	case 6:
 		classicPawns.fill1()
 		classicPawns.fill2()
 		classicPawns.fill3()
-		classicPawns.fill4()
-		classicPawns.fill5()
+		classicPawns.fill4(4)
+		classicPawns.fill5(5)
 		classicPawns.fill6()
 	default:
 		return nil, fmt.Errorf("invalid number of players")
@@ -60,6 +55,17 @@ func (p *ClassicPawns) PrintPawns() {
 		}
 		print("\n")
 	}
+}
+
+func (p *ClassicPawns) Check(x, y int) int {
+	if x < 0 || y < 0 || x > 24 || y > 16 {
+		return -1
+	}
+	return p.pawns[Point{x: x, y: y}]
+}
+
+func (p *ClassicPawns) GetPawns() map[Point]int {
+	return p.pawns
 }
 
 func (p *ClassicPawns) fill1() {
@@ -101,30 +107,30 @@ func (p *ClassicPawns) fill3() {
 	p.pawns[Point{x: 21, y: 7}] = 3
 }
 
-func (p *ClassicPawns) fill4() {
-	p.pawns[Point{x: 3, y: 9}] = 4
-	p.pawns[Point{x: 2, y: 10}] = 4
-	p.pawns[Point{x: 4, y: 10}] = 4
-	p.pawns[Point{x: 1, y: 11}] = 4
-	p.pawns[Point{x: 3, y: 11}] = 4
-	p.pawns[Point{x: 5, y: 11}] = 4
-	p.pawns[Point{x: 0, y: 12}] = 4
-	p.pawns[Point{x: 2, y: 12}] = 4
-	p.pawns[Point{x: 4, y: 12}] = 4
-	p.pawns[Point{x: 6, y: 12}] = 4
+func (p *ClassicPawns) fill4(n int) {
+	p.pawns[Point{x: 3, y: 9}] = n
+	p.pawns[Point{x: 2, y: 10}] = n
+	p.pawns[Point{x: 4, y: 10}] = n
+	p.pawns[Point{x: 1, y: 11}] = n
+	p.pawns[Point{x: 3, y: 11}] = n
+	p.pawns[Point{x: 5, y: 11}] = n
+	p.pawns[Point{x: 0, y: 12}] = n
+	p.pawns[Point{x: 2, y: 12}] = n
+	p.pawns[Point{x: 4, y: 12}] = n
+	p.pawns[Point{x: 6, y: 12}] = n
 }
 
-func (p *ClassicPawns) fill5() {
-	p.pawns[Point{x: 21, y: 9}] = 5
-	p.pawns[Point{x: 20, y: 10}] = 5
-	p.pawns[Point{x: 22, y: 10}] = 5
-	p.pawns[Point{x: 19, y: 11}] = 5
-	p.pawns[Point{x: 21, y: 11}] = 5
-	p.pawns[Point{x: 23, y: 11}] = 5
-	p.pawns[Point{x: 18, y: 12}] = 5
-	p.pawns[Point{x: 20, y: 12}] = 5
-	p.pawns[Point{x: 22, y: 12}] = 5
-	p.pawns[Point{x: 24, y: 12}] = 5
+func (p *ClassicPawns) fill5(n int) {
+	p.pawns[Point{x: 21, y: 9}] = n
+	p.pawns[Point{x: 20, y: 10}] = n
+	p.pawns[Point{x: 22, y: 10}] = n
+	p.pawns[Point{x: 19, y: 11}] = n
+	p.pawns[Point{x: 21, y: 11}] = n
+	p.pawns[Point{x: 23, y: 11}] = n
+	p.pawns[Point{x: 18, y: 12}] = n
+	p.pawns[Point{x: 20, y: 12}] = n
+	p.pawns[Point{x: 22, y: 12}] = n
+	p.pawns[Point{x: 24, y: 12}] = n
 }
 
 func (p *ClassicPawns) fill6() {
