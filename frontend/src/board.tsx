@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGlobalState } from "./hooks/globalState";
 import { LogicBoard } from "./logic/board";
+import { FindMoves, PerformMove } from "./logic/state";
 
 const colors: Record<string, string> = {
     '-1': 'transparent',
@@ -26,10 +27,13 @@ const playerColors: Record<string, string> = {
 interface BoardTileProps {
     value: number;
     state: number;
-    onClick: () => void;
+    selectPiece: () => void;
+    tryMovePiece: () => void;
+    selected: boolean;
+    available?: boolean;
 }
 
-const BoardTile: React.FC<BoardTileProps> = ({ value, state, onClick }: BoardTileProps) => {
+const BoardTile: React.FC<BoardTileProps> = ({ value, state, selectPiece, tryMovePiece, selected, available }: BoardTileProps) => {
     if (value === -1) {
         return <div className={"board-tile"}></div>;
     }
@@ -37,39 +41,65 @@ const BoardTile: React.FC<BoardTileProps> = ({ value, state, onClick }: BoardTil
         return (
             <div className={"board-tile"}>
                 <div
+                    onClick={() => tryMovePiece()}
                     className={"board-tile-circle"}
                     style={{
-                        border: `4px solid ${colors[value]}`,
-                        backgroundColor: "transparent",
+                        border: `4px solid ${(available) ? 'white' : colors[value]}`,
+                        backgroundColor: 'transparent',
                     }}>
                 </div>
             </div>
         );
     }
-
     return (
         <div className={"board-tile"}>
             <div
-                onClick={() => onClick()}
+                onClick={() => selectPiece()}
                 className={"board-tile-circle board-tile-circle-active"}
                 style={{
-                    border: `4px solid ${colors[value]}`,
+                    border: `4px solid ${(selected) ? 'white' : playerColors[value]}`,
+                    color: playerColors[state],
                     backgroundColor: playerColors[state],
                 }}>
             </div>
         </div>
     );
-
 }
 
-type Tile = {
+type Point = {
     row: number;
     col: number;
 }
 
 const Board = () => {
-    const { boardState } = useGlobalState();
-    const [selectedTile, setSelectedTile] = useState<Tile | null>(null);
+    const { boardState, setBoardState } = useGlobalState();
+    const [selectedTile, setSelectedTile] = useState<Point | null>(null);
+    const [availableMoves, setAvailableMoves] = useState<Point[]>([]);
+
+    useEffect(() => {
+        if (selectedTile) {
+            const passMap = Array.from({ length: boardState.length }, () => Array(boardState[0].length).fill(false));
+            const moves = FindMoves(boardState, { row: selectedTile.row, col: selectedTile.col }, passMap, []);
+            setAvailableMoves(moves);
+        }
+    }, [selectedTile]);
+
+    const handleTryMovePiece = (end: Point) => {
+        if (selectedTile == undefined) {
+            return;
+        }
+        if (availableMoves.length === 0) {
+            return;
+        }
+        if (!availableMoves.some((move) => move.row === end.row && move.col === end.col)) {
+            setSelectedTile(null);
+            setAvailableMoves([]);
+            return;
+        }
+        setBoardState(PerformMove(boardState, { row: selectedTile.row, col: selectedTile.col }, end));
+        setSelectedTile(null);
+        setAvailableMoves([]);
+    }
 
     return (
         <div className="board">
@@ -80,7 +110,12 @@ const Board = () => {
                             key={colIndex}
                             value={tile}
                             state={boardState[rowIndex][colIndex]}
-                            onClick={() => setSelectedTile({ row: rowIndex, col: colIndex })} />
+                            selectPiece={() => setSelectedTile({ row: rowIndex, col: colIndex })}
+                            tryMovePiece={() => handleTryMovePiece(
+                                { row: rowIndex, col: colIndex })}
+                            selected={selectedTile?.row === rowIndex && selectedTile?.col === colIndex}
+                            available={(availableMoves.length > 0) && availableMoves.some((move) => move.row === rowIndex && move.col === colIndex)}
+                        />
                     ))}
                 </div>
             ))}
