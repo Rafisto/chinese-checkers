@@ -88,6 +88,7 @@ body,
 
 
 .menu {
+    overflow-y: scroll;
     padding: 8px;
     background-color: #323232;
 }
@@ -111,6 +112,7 @@ body,
 .board-tile {
     width: 30px;
     height: 46px;
+    user-select: none;
 }
 
 .board-tile-circle {
@@ -119,6 +121,10 @@ body,
     height: 30px;
     border-radius: 50%;
     background-color: #000;
+}
+
+.board-tile-circle-active:hover {
+    box-shadow: 0 0 10px #fff;
 }
 
 .wide {

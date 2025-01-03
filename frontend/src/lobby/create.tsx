@@ -1,20 +1,23 @@
 import { useState } from "react";
 import { APICreateGame } from "../api/lobby";
 import StyledButton from "../components/styledButton";
+import { useGlobalState } from "../hooks/globalState";
 
 const Create = () => {
+    const { serverAddress } = useGlobalState();
+
     const [numPlayers, setNumPlayers] = useState<number>(2);
-    
+
     const [loading, setLoading] = useState<boolean>(false);
     const [response, setResponse] = useState<string>("");
     const [error, setError] = useState<string>("");
-    
+
     const handleCreateGame = async () => {
         setLoading(true);
         setResponse("");
         setError("");
         try {
-            await APICreateGame(numPlayers);
+            await APICreateGame(serverAddress, numPlayers);
             setResponse("Game Created");
         } catch (error) {
             console.error(error);
@@ -40,9 +43,9 @@ const Create = () => {
                 <option value="6">6 Players</option>
             </select>
             <br />
-            <StyledButton text={"Create Game"} handleClick={handleCreateGame} loading={loading} loadingText={"Creating Game..."} className={"wide"}  />
-            {response && <span style={{color:"green"}}>{response}</span>}
-            {error && <span style={{color:"red"}}>{error}</span>}
+            <StyledButton text={"Create Game"} handleClick={handleCreateGame} loading={loading} loadingText={"Creating Game..."} className={"wide"} />
+            {response && <span style={{ color: "green" }}>{response}</span>}
+            {error && <span style={{ color: "red" }}>{error}</span>}
         </div>
     )
 

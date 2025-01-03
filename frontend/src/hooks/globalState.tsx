@@ -1,14 +1,17 @@
 import React, { useContext } from 'react';
+import { TwoTeamState } from '../logic/state';
 
 interface GlobalStateContextType {
     serverAddress: string;
     setServerAddress: (address: string) => void;
-    playerID: string;
-    setPlayerID: (playerID: string) => void;
     playerName: string;
     setPlayerName: (playerName: string) => void;
-    gameID: string;
-    setGameID: (gameID: string) => void;
+    playerID: number;
+    setPlayerID: (playerID: number) => void;
+    gameID: number;
+    setGameID: (gameID: number) => void;
+    boardState: number[][];
+    setBoardState: (gameState: number[][]) => void;
 }
 
 const GlobalStateContext = React.createContext<GlobalStateContextType | undefined>(undefined);
@@ -18,10 +21,11 @@ interface GlobalStateProviderProps {
 }
 
 export const GlobalStateProvider = ({ children }: GlobalStateProviderProps) => {
-    const [serverAddress, setServerAddress] = React.useState('http://localhost:8080/');
-    const [playerID, setPlayerID] = React.useState('');
-    const [playerName, setPlayerName] = React.useState('');
-    const [gameID, setGameID] = React.useState('');
+    const [serverAddress, setServerAddress] = React.useState<string>('http://localhost:8080');
+    const [playerName, setPlayerName] = React.useState<string>('player');
+    const [playerID, setPlayerID] = React.useState<number>(-1);
+    const [gameID, setGameID] = React.useState<number>(-1);
+    const [boardState, setBoardState] = React.useState<number[][]>(TwoTeamState);
 
     const value = {
         serverAddress,
@@ -32,6 +36,8 @@ export const GlobalStateProvider = ({ children }: GlobalStateProviderProps) => {
         setPlayerName,
         gameID,
         setGameID,
+        boardState,
+        setBoardState
     };
 
     return (
