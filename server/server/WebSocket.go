@@ -209,6 +209,7 @@ func (s *Server) HandlePlayerMessage(conn *websocket.Conn, gameID, playerID int,
 		log.Printf("[INFO] Sending pawns to Game %d Player %d", gameID, playerID)
 
 		WSendMessage(conn, string(pawnsJSON))
+		return
 	}
 
 	// move a pawn
@@ -216,15 +217,20 @@ func (s *Server) HandlePlayerMessage(conn *websocket.Conn, gameID, playerID int,
 		log.Printf("[INFO] Game %d Player %d requests a move from (%d, %d) to (%d, %d)", gameID, playerRequest.PlayerID, playerRequest.Start.Row, playerRequest.Start.Col, playerRequest.End.Row, playerRequest.End.Col)
 		err := s.GameManager.GetGames()[gameID].Move(playerID, playerRequest.Start.Row, playerRequest.Start.Col, playerRequest.End.Row, playerRequest.End.Col)
 
-		playerRequest.Type = "server"
 		if err != nil {
 			log.Printf("[ERROR] Unable to move: %v", err)
 			errorMessage, _ := json.Marshal(map[string]string{"message": "Invalid Move"})
 			WBroadcastToGame(gameID, string(errorMessage), s)
 		} else {
-			WBroadcastToGame(gameID, msg, s)
-		}
+			playerRequest.Type = "server"
+			response, err := json.Marshal(playerRequest)
+			if err != nil {
+				log.Printf("[ERROR] Unable to marshal player request: %v", err)
+				return
+			}
 
+			WBroadcastToGame(gameID, string(response), s)
+		}
 		return
 	}
 }

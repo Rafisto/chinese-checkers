@@ -62,8 +62,9 @@ const Board = () => {
                     setGameState((prevGameState) => ({ ...prevGameState, players: message.players, turn: message.turn, current: message.current, color: message.color }));
                 };
 
-                if (message.type === "server" && message.action === "move" && message.player_id !== lobbyState.playerID) {
+                if (message.type === "server" && message.action === "move") {
                     setGameState((prevGameState) => ({ ...prevGameState, state: PerformMove(prevGameState.state, message.start, message.end) }));
+                    sendStateRequest();
                 }
             }
         };
