@@ -1,17 +1,29 @@
-import React, { useContext } from 'react';
-import { TwoTeamState } from '../logic/state';
+import React, { useContext, useState } from 'react';
+import { LogicState } from '../logic/state';
+import { LogicBoard } from '../logic/board';
+
+interface LobbyState {
+    playerName: string;
+    playerID: number;
+    gameID: number;
+}
+
+interface GameState {
+    color: number;
+    players: number[];
+    current: number;
+    turn: number;
+    board: number[][];
+    state: number[][];
+}
 
 interface GlobalStateContextType {
     serverAddress: string;
     setServerAddress: (address: string) => void;
-    playerName: string;
-    setPlayerName: (playerName: string) => void;
-    playerID: number;
-    setPlayerID: (playerID: number) => void;
-    gameID: number;
-    setGameID: (gameID: number) => void;
-    boardState: number[][];
-    setBoardState: (gamestate: ((prevGamStage: number[][]) => number[][]) | number[][]) => void;
+    lobbyState: LobbyState;
+    setLobbyState: (state: LobbyState) => void;
+    gameState: GameState;
+    setGameState: (state: ((prevGameState: GameState) => GameState) | GameState) => void;
     auditLog: string[];
     setAuditLog: (auditLog: ((prevAuditLog: string[]) => string[]) | string[]) => void;
     ws: WebSocket | null;
@@ -25,25 +37,31 @@ interface GlobalStateProviderProps {
 }
 
 export const GlobalStateProvider = ({ children }: GlobalStateProviderProps) => {
-    const [serverAddress, setServerAddress] = React.useState<string>('http://localhost:8080');
-    const [playerName, setPlayerName] = React.useState<string>('player');
-    const [playerID, setPlayerID] = React.useState<number>(-1);
-    const [gameID, setGameID] = React.useState<number>(-1);
-    const [boardState, setBoardState] = React.useState<number[][]>(TwoTeamState);
-    const [auditLog, setAuditLog] = React.useState<string[]>(["Chinese-Checkers log"]);
-    const [ws, setWS] = React.useState<WebSocket | null>(null);
+    const [serverAddress, setServerAddress] = useState<string>('http://localhost:8080');
+    const [lobbyState, setLobbyState] = useState<LobbyState>({
+        playerName: 'player',
+        playerID: -1,
+        gameID: -1,
+    })
+    const [gameState, setGameState] = useState<GameState>({
+        color: -1,
+        current: -1,
+        players: [],
+        turn: -1,
+        board: LogicBoard,
+        state: LogicState,
+    });
+
+    const [auditLog, setAuditLog] = useState<string[]>(["Chinese-Checkers log"]);
+    const [ws, setWS] = useState<WebSocket | null>(null);
 
     const value = {
         serverAddress,
         setServerAddress,
-        playerID,
-        setPlayerID,
-        playerName,
-        setPlayerName,
-        gameID,
-        setGameID,
-        boardState,
-        setBoardState,
+        lobbyState,
+        setLobbyState,
+        gameState,
+        setGameState,
         auditLog,
         setAuditLog,
         ws,

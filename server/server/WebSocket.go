@@ -1,6 +1,7 @@
 package server
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"slices"
@@ -107,8 +108,6 @@ func (s *Server) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 
 	s.RegisterNewSocketConnection(gameID_int, playerID_int, conn)
 
-	WSendMessage(conn, "Hello!")
-
 	for {
 		msg, err := WReadMessage(conn)
 		if err != nil {
@@ -118,7 +117,114 @@ func (s *Server) HandleWebSocket(w http.ResponseWriter, r *http.Request) {
 			break
 		}
 
+		s.HandlePlayerMessage(conn, gameID_int, playerID_int, msg)
+
 		// WBroadcastToGame(gameID_int, fmt.Sprintf("Player %d: %s", playerID_int, msg), s)
-		WBroadcastToGame(gameID_int, msg, s)
+		// WBroadcastToGame(gameID_int, msg, s)
+	}
+}
+
+// HandlePlayerMessage godoc
+// @Summary	Handle player move
+// @Description	When player sends a websocket meessage with a defined type and an action it is be parsed, logged and processed further
+func (s *Server) HandlePlayerMessage(conn *websocket.Conn, gameID, playerID int, msg string) {
+	var playerRequest WSRequest
+	if err := json.Unmarshal([]byte(msg), &playerRequest); err != nil {
+		log.Printf("[ERROR] Unable to parse player message: %v", err)
+		return
+	}
+
+	// get state
+	if playerRequest.Type == "player" && playerRequest.Action == "state" {
+		log.Printf("[INFO] Game %d Player %d requests the game state", gameID, playerID)
+
+		// return whole game state:
+		// - current player color
+		// - whose turn is it
+
+		requestedGame, ok := s.GameManager.GetGames()[gameID]
+		if !ok {
+			log.Printf("[ERROR] Game %d does not exist", gameID)
+			return
+		}
+
+		gameState := map[string]interface{}{
+			"type":    "server",
+			"action":  "state",
+			"color":   slices.Index(requestedGame.GetPlayers(), playerID),
+			"players": requestedGame.GetPlayers(),
+			"current": requestedGame.GetPlayerTurn(),
+			"turn":    requestedGame.GetTurn(),
+		}
+
+		gameStateJSON, err := json.Marshal(gameState)
+		if err != nil {
+			log.Printf("[ERROR] Unable to marshal game state: %v", err)
+			return
+		}
+
+		log.Printf("[INFO] Sending game state to Game %d Player %d", gameID, playerID)
+		WSendMessage(conn, string(gameStateJSON))
+	}
+
+	// get board
+	if playerRequest.Type == "player" && playerRequest.Action == "board" {
+		log.Printf("[INFO] Game %d Player %d requests the board state", gameID, playerID)
+
+		requestedGame, ok := s.GameManager.GetGames()[gameID]
+		if !ok {
+			log.Printf("[ERROR] Game %d does not exist", gameID)
+			return
+		}
+
+		board := requestedGame.GetBoard().GetBoard()
+		boardJSON, err := json.Marshal(map[string]interface{}{"type": "server", "board": board})
+		if err != nil {
+			log.Printf("[ERROR] Unable to marshal board: %v", err)
+			return
+		}
+
+		log.Printf("[INFO] Sending board to Game %d Player %d", gameID, playerID)
+
+		WSendMessage(conn, string(boardJSON))
+	}
+
+	// get board state (all pawns)
+	if playerRequest.Type == "player" && playerRequest.Action == "pawns" {
+		log.Printf("[INFO] Game %d Player %d requests the board pawns", gameID, playerID)
+
+		requestedGame, ok := s.GameManager.GetGames()[gameID]
+		if !ok {
+			log.Printf("[ERROR] Game %d does not exist", gameID)
+			return
+		}
+
+		pawns := requestedGame.GetBoard().GetPawns().GetPawnsMatrix()
+		pawnsJSON, err := json.Marshal(map[string]interface{}{"type": "server", "pawns": pawns})
+		if err != nil {
+			log.Printf("[ERROR] Unable to marshal pawns: %v", err)
+			return
+		}
+
+		log.Printf("[INFO] Sending pawns to Game %d Player %d", gameID, playerID)
+
+		WSendMessage(conn, string(pawnsJSON))
+	}
+
+	// move a pawn
+	if playerRequest.Type == "player" && playerRequest.Action == "move" {
+		log.Printf("[INFO] Game %d Player %d requests a move from (%d, %d) to (%d, %d)", gameID, playerRequest.PlayerID, playerRequest.Start.Row, playerRequest.Start.Col, playerRequest.End.Row, playerRequest.End.Col)
+		err := s.GameManager.GetGames()[gameID].Move(playerID, playerRequest.Start.Row, playerRequest.Start.Col, playerRequest.End.Row, playerRequest.End.Col)
+
+		playerRequest.Type = "server"
+		if err != nil {
+			log.Printf("[ERROR] Unable to move: %v", err)
+			errorMessage, _ := json.Marshal(map[string]string{"message": "Invalid Move"})
+			WBroadcastToGame(gameID, string(errorMessage), s)
+		} else {
+			WBroadcastToGame(gameID, msg, s)
+		}
+
+		return
 	}
 }

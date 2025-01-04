@@ -9,4 +9,5 @@ type Pawns interface {
 	PrintPawns()
 	Check(x, y int) int
 	GetPawns() map[Point]int
+	GetPawnsMatrix() [][]int
 }

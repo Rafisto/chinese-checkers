@@ -1,7 +1,6 @@
 package main
 
 import (
-	"chinese-checkers/game"
 	"chinese-checkers/server"
 )
 
@@ -20,16 +19,7 @@ import (
 // @externalDocs.description	OpenAPI
 // @externalDocs.url			https://swagger.io/resources/open-api/
 func main() {
-	board, err := game.NewClassicBoard(6)
-	if err != nil {
-		print("oops")
-	}
-	board.PrintBoard()
-
-	board.GetPawns().PrintPawns()
-
 	s := server.NewServer()
 
 	s.RunServer(8080)
-
 }

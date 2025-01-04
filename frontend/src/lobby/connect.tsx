@@ -6,7 +6,7 @@ type ConnectProps = {
 }
 
 const Connect = ({ setConnected }: ConnectProps) => {
-    const { serverAddress, setServerAddress, playerName, setPlayerName, auditLog, setAuditLog } = useGlobalState();
+    const { serverAddress, setServerAddress, lobbyState, setLobbyState, auditLog, setAuditLog } = useGlobalState();
 
     const connect = async () => {
         try {
@@ -27,7 +27,7 @@ const Connect = ({ setConnected }: ConnectProps) => {
             <input type="text" value={serverAddress} onChange={(e) => setServerAddress(e.currentTarget.value)}></input>
             <br />
             <p>Enter your name</p>
-            <input type="text" value={playerName} onChange={(e) => setPlayerName(e.currentTarget.value)}></input>
+            <input type="text" value={lobbyState.playerName} onChange={(e) => setLobbyState({ ...lobbyState, playerName: e.currentTarget.value })}></input>
             <button onClick={() => connect()} className={"wide"}>Connect</button>
         </div>
     )

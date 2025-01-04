@@ -87,6 +87,10 @@ func (g *Game) GetTurn() int {
 	return g.turn
 }
 
+func (g *Game) GetPlayerTurn() int {
+	return g.players[g.turn%g.playerNum]
+}
+
 func (g *Game) nextTurn() {
 	g.turn = (g.turn + 1) % g.playerNum
 }

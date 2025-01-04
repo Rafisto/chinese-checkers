@@ -55,7 +55,34 @@ Then navigate to [http://localhost:6060/pkg/chinese-checkers/](http://localhost:
 
 Client sends to Server:
 
-1. Send Move:
+1. State of the game
+
+```json
+{
+  "type": "player",
+  "action": "state",
+}
+```
+
+2. Get Board
+
+```json
+{
+  "type": "player",
+  "action": "board"
+}
+```
+
+3. Get Pawns
+
+```json
+{
+  "type": "player",
+  "action": "pawns"
+}
+```
+
+4. Send Move:
 
 ```json
 {
