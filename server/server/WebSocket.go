@@ -214,8 +214,8 @@ func (s *Server) HandlePlayerMessage(conn *websocket.Conn, gameID, playerID int,
 
 	// move a pawn
 	if playerRequest.Type == "player" && playerRequest.Action == "move" {
-		log.Printf("[INFO] Game %d Player %d requests a move from (%d, %d) to (%d, %d)", gameID, playerRequest.PlayerID, playerRequest.Start.Row, playerRequest.Start.Col, playerRequest.End.Row, playerRequest.End.Col)
-		err := s.GameManager.GetGames()[gameID].Move(playerID, playerRequest.Start.Row, playerRequest.Start.Col, playerRequest.End.Row, playerRequest.End.Col)
+		log.Printf("[INFO] Game %d Player %d requests a move from (%d, %d) to (%d, %d)", gameID, playerRequest.PlayerID, playerRequest.Start.Col, playerRequest.Start.Row, playerRequest.End.Col, playerRequest.End.Row)
+		err := s.GameManager.GetGames()[gameID].Move(playerID, playerRequest.Start.Col, playerRequest.Start.Row, playerRequest.End.Col, playerRequest.End.Row)
 
 		if err != nil {
 			log.Printf("[ERROR] Unable to move: %v", err)

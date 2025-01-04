@@ -64,6 +64,14 @@ func (p *ClassicPawns) Check(x, y int) int {
 	return p.pawns[Point{x: x, y: y}]
 }
 
+func (p *ClassicPawns) Move(oldX, oldY, x, y int) {
+	old := Point{x: oldX, y: oldY}
+	new := Point{x: x, y: y}
+	pawn := p.pawns[old]
+	p.pawns[old] = 0
+	p.pawns[new] = pawn
+}
+
 func (p *ClassicPawns) GetPawns() map[Point]int {
 	return p.pawns
 }

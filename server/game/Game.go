@@ -188,6 +188,7 @@ func (g *Game) Move(playerID, oldX, oldY, x, y int) error {
 	}
 
 	if g.board.GetPawns().Check(oldX, oldY)-1 != g.turn {
+		// fmt.Printf("Pawn: %v\nPlayer: %v\n", g.board.GetPawns().Check(oldX, oldY), g.turn)
 		return fmt.Errorf("invalid pawn")
 	}
 
@@ -200,11 +201,13 @@ func (g *Game) Move(playerID, oldX, oldY, x, y int) error {
 	}
 
 	if g.Step(oldX, oldY, x, y) {
+		g.board.GetPawns().Move(oldX, oldY, x, y)
 		g.nextTurn()
 		return nil
 	}
 
 	if g.Jump(nil, oldX, oldY, x, y) {
+		g.board.GetPawns().Move(oldX, oldY, x, y)
 		g.nextTurn()
 		return nil
 	}
