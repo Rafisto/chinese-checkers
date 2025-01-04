@@ -46,6 +46,29 @@ func NewClassicBoard(playerNum int) (*ClassicBoard, error) {
 		board[12][16] = 2
 	}
 
+	if playerNum == 3 {
+		board[4][18] = 4
+		board[4][20] = 4
+		board[4][22] = 4
+		board[4][24] = 4
+		board[5][19] = 4
+		board[5][21] = 4
+		board[5][23] = 4
+		board[6][20] = 4
+		board[6][22] = 4
+		board[7][21] = 4
+		board[12][0] = 3
+		board[12][2] = 3
+		board[12][4] = 3
+		board[12][6] = 3
+		board[11][1] = 3
+		board[11][3] = 3
+		board[11][5] = 3
+		board[10][2] = 3
+		board[10][4] = 3
+		board[9][3] = 3
+	}
+
 	classicBoard := &ClassicBoard{
 		playerNum: playerNum,
 		board:     board,

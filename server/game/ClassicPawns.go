@@ -21,20 +21,20 @@ func NewClassicPawns(playerNum int) (*ClassicPawns, error) {
 
 	switch playerNum {
 	case 2:
-		classicPawns.fill1()
+		classicPawns.fill1(1)
 		classicPawns.fill2()
 		classicPawns.fill2Players()
 	case 3:
-		classicPawns.fill1()
-		classicPawns.fill4(2)
-		classicPawns.fill5(3)
+		classicPawns.fill1(1)
+		classicPawns.fill4(3)
+		classicPawns.fill5(5)
 	case 4:
-		classicPawns.fill1()
+		classicPawns.fill1(1)
 		classicPawns.fill2()
 		classicPawns.fill3()
 		classicPawns.fill4(4)
 	case 6:
-		classicPawns.fill1()
+		classicPawns.fill1(1)
 		classicPawns.fill2()
 		classicPawns.fill3()
 		classicPawns.fill4(4)
@@ -87,17 +87,17 @@ func (p *ClassicPawns) GetPawnsMatrix() [][]int {
 	return pawnsArr
 }
 
-func (p *ClassicPawns) fill1() {
-	p.pawns[Point{x: 12, y: 0}] = 1
-	p.pawns[Point{x: 11, y: 1}] = 1
-	p.pawns[Point{x: 13, y: 1}] = 1
-	p.pawns[Point{x: 10, y: 2}] = 1
-	p.pawns[Point{x: 12, y: 2}] = 1
-	p.pawns[Point{x: 14, y: 2}] = 1
-	p.pawns[Point{x: 9, y: 3}] = 1
-	p.pawns[Point{x: 11, y: 3}] = 1
-	p.pawns[Point{x: 13, y: 3}] = 1
-	p.pawns[Point{x: 15, y: 3}] = 1
+func (p *ClassicPawns) fill1(n int) {
+	p.pawns[Point{x: 12, y: 0}] = n
+	p.pawns[Point{x: 11, y: 1}] = n
+	p.pawns[Point{x: 13, y: 1}] = n
+	p.pawns[Point{x: 10, y: 2}] = n
+	p.pawns[Point{x: 12, y: 2}] = n
+	p.pawns[Point{x: 14, y: 2}] = n
+	p.pawns[Point{x: 9, y: 3}] = n
+	p.pawns[Point{x: 11, y: 3}] = n
+	p.pawns[Point{x: 13, y: 3}] = n
+	p.pawns[Point{x: 15, y: 3}] = n
 }
 
 func (p *ClassicPawns) fill2() {
