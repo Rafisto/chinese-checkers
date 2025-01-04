@@ -1,8 +1,9 @@
 package game
 
 type ClassicBoard struct {
-	board [][]int
-	pawns *ClassicPawns
+	playerNum int
+	board     [][]int
+	pawns     *ClassicPawns
 }
 
 func NewClassicBoard(playerNum int) (*ClassicBoard, error) {
@@ -46,8 +47,9 @@ func NewClassicBoard(playerNum int) (*ClassicBoard, error) {
 	}
 
 	classicBoard := &ClassicBoard{
-		board: board,
-		pawns: classicPawns,
+		playerNum: playerNum,
+		board:     board,
+		pawns:     classicPawns,
 	}
 	return classicBoard, nil
 }
@@ -71,6 +73,9 @@ func (b *ClassicBoard) PrintBoard() {
 		}
 		print("\n")
 	}
+}
+func (b *ClassicBoard) GetPlayerNum() int {
+	return b.playerNum
 }
 
 func (b *ClassicBoard) GetBoard() [][]int {

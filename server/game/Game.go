@@ -42,8 +42,12 @@ func (g *Game) SetPlayerNum(playerNum int) error {
 	}
 }
 
-func (g *Game) SetBoard(board Board) {
+func (g *Game) SetBoard(board Board) error {
+	if board.GetPlayerNum() != g.playerNum {
+		return fmt.Errorf("expected board for %v player, got one for %v", g.playerNum, board.GetPlayerNum())
+	}
 	g.board = board
+	return nil
 }
 
 func (g *Game) AddPlayer(playerID int) error {
