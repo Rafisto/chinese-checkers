@@ -12,15 +12,23 @@ type Game struct {
 	players   []int
 	board     Board
 	turn      int
+	progress  []int
+	ended     bool
 }
 
 func NewGame(gameID, playerNum int, board Board) (*Game, error) {
 	if slices.Contains([]int{2, 3, 4, 6}, playerNum) {
+		progress := make([]int, playerNum)
+		for i := 0; i < playerNum; i++ {
+			progress[i] = 0
+		}
 		game := &Game{
 			gameID:    gameID,
 			playerNum: playerNum,
 			board:     board,
 			turn:      0,
+			progress:  progress,
+			ended:     false,
 		}
 		return game, nil
 	} else {
@@ -89,6 +97,10 @@ func (g *Game) GetTurn() int {
 
 func (g *Game) GetPlayerTurn() int {
 	return g.players[g.turn%g.playerNum]
+}
+
+func (g *Game) GetProgress() []int {
+	return g.progress
 }
 
 func (g *Game) nextTurn() {
@@ -182,17 +194,48 @@ func (g *Game) Jump(checked []Point, oldX, oldY, x, y int) bool {
 	return false
 }
 
+func (g *Game) validMove(oldX, oldY, x, y int) {
+	pawn := g.board.GetPawns().Check(oldX, oldY)
+	pawnDestination := pawn + (pawn%2)*2 - 1
+	currentSquare := g.board.Check(oldX, oldY)
+	newSquare := g.board.Check(x, y)
+
+	if newSquare == pawnDestination && currentSquare != pawnDestination {
+		g.progress[pawn-1] += 1
+		fmt.Println(g.progress[pawn-1])
+		if g.playerNum == 2 {
+			if g.progress[pawn-1] == 15 {
+				g.ended = true
+			}
+		} else {
+			if g.progress[pawn-1] == 10 {
+				g.ended = true
+			}
+		}
+	}
+
+	g.board.GetPawns().Move(oldX, oldY, x, y)
+	g.nextTurn()
+}
+
 func (g *Game) Move(playerID, oldX, oldY, x, y int) error {
+	if g.ended {
+		return fmt.Errorf("game has ended")
+	}
+
 	if playerID != g.players[g.turn%g.playerNum] {
 		return fmt.Errorf("another player's turn")
 	}
 
-	if g.board.GetPawns().Check(oldX, oldY)-1 != g.turn {
-		// fmt.Printf("Pawn: %v\nPlayer: %v\n", g.board.GetPawns().Check(oldX, oldY), g.turn)
+	pawn := g.board.GetPawns().Check(oldX, oldY)
+	currentSquare := g.board.Check(oldX, oldY)
+	newSquare := g.board.Check(x, y)
+
+	if pawn-1 != g.turn {
 		if g.playerNum != 3 {
 			return fmt.Errorf("invalid pawn")
 		}
-		if g.board.GetPawns().Check(oldX, oldY)-1 != 2*g.turn {
+		if pawn-1 != 2*g.turn {
 			return fmt.Errorf("invalid pawn")
 		}
 	}
@@ -201,19 +244,23 @@ func (g *Game) Move(playerID, oldX, oldY, x, y int) error {
 		return fmt.Errorf("space is occupied")
 	}
 
-	if g.board.GetBoard()[y][x] == -1 {
+	if newSquare == -1 {
 		return fmt.Errorf("invalid space")
 	}
 
+	if currentSquare == pawn+(pawn%2)*2-1 {
+		if newSquare != currentSquare {
+			return fmt.Errorf("cannot escape home destination")
+		}
+	}
+
 	if g.Step(oldX, oldY, x, y) {
-		g.board.GetPawns().Move(oldX, oldY, x, y)
-		g.nextTurn()
+		g.validMove(oldX, oldY, x, y)
 		return nil
 	}
 
 	if g.Jump(nil, oldX, oldY, x, y) {
-		g.board.GetPawns().Move(oldX, oldY, x, y)
-		g.nextTurn()
+		g.validMove(oldX, oldY, x, y)
 		return nil
 	}
 
