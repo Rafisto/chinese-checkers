@@ -1,6 +1,8 @@
 package game
 
-import "testing"
+import (
+	"testing"
+)
 
 var game, err = NewClassicGame(0, 6)
 
@@ -17,7 +19,18 @@ func TestGameIDGet(t *testing.T) {
 	}
 }
 
-func TestPlayerNumSetInvalid(t *testing.T) {
+func TestAddPlayer(t *testing.T) {
+	err = game.AddPlayer(0)
+	if err != nil {
+		t.Fatalf(`game.AddPlayer(0) = %v, want nil`, err)
+	}
+	err = game.AddPlayer(1)
+	if err != nil {
+		t.Fatalf(`game.AddPlayer(1) = %v, want nil`, err)
+	}
+}
+
+func TestPlayerNumSetError(t *testing.T) {
 	err = game.SetPlayerNum(0)
 	if err == nil {
 		t.Fatalf(`game.SetPlayerNum(0) = nil, expected error`)
@@ -71,5 +84,49 @@ func TestPlayerNumSetGet(t *testing.T) {
 	num = game.GetPlayerNum()
 	if num != 6 {
 		t.Fatalf(`game.GetPlayerNum() = %v, want 6`, num)
+	}
+}
+
+func TestMoveError(t *testing.T) {
+	err = game.Move(0, 0, 0, 0, 0)
+	if err == nil {
+		t.Fatalf(`expected 'pawn doesn't exist' error, got nil`)
+	}
+
+	err = game.Move(1, 11, 3, 10, 4)
+	if err == nil {
+		t.Fatalf(`expected 'another player's turn' error, got nil`)
+	}
+
+	err = game.Move(0, 12, 14, 10, 12)
+	if err == nil {
+		t.Fatalf(`expected 'invalid pawn' error, got nil`)
+	}
+
+	err = game.Move(0, 12, 2, 11, 3)
+	if err == nil {
+		t.Fatalf(`expected 'space is occupied' error, got nil`)
+	}
+
+	err = game.Move(0, 11, 3, 10, 3)
+	if err == nil {
+		t.Fatalf(`expected 'invalid space' error, got nil`)
+	}
+
+	err = game.Move(0, 11, 3, 11, 5)
+	if err == nil {
+		t.Fatalf(`expected 'invalid move' error, got nil`)
+	}
+}
+
+func TestMove(t *testing.T) {
+	err = game.Move(0, 11, 3, 10, 4)
+	if err != nil {
+		t.Fatalf(`game.Move() = %v, want nil`, err)
+	}
+
+	err = game.Move(1, 12, 14, 10, 12)
+	if err != nil {
+		t.Fatalf(`game.Move() = %v, want nil`, err)
 	}
 }

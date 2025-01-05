@@ -223,6 +223,11 @@ func (g *ChaosGame) Move(playerID, oldX, oldY, x, y int) error {
 	}
 
 	pawn := g.board.GetPawns().Check(oldX, oldY)
+
+	if pawn == 0 {
+		return fmt.Errorf("pawn doesn't exist")
+	}
+
 	currentSquare := g.board.Check(oldX, oldY)
 	newSquare := g.board.Check(x, y)
 
