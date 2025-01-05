@@ -6,19 +6,19 @@ import (
 	"slices"
 )
 
-type ClassicGame struct {
+type ChaosGame struct {
 	gameID    int
 	playerNum int
 	players   []int
-	board     *ClassicBoard
+	board     Board
 	turn      int
 	progress  []int
 	ended     bool
 }
 
-func NewClassicGame(gameID, playerNum int) (Game, error) {
+func NewChaosGame(gameID, playerNum int) (Game, error) {
 	if slices.Contains([]int{2, 3, 4, 6}, playerNum) {
-		board, err := NewClassicBoard(playerNum)
+		board, err := NewChaosBoard(playerNum)
 		if err != nil {
 			return nil, fmt.Errorf("error creating board: %v", err)
 		}
@@ -28,7 +28,7 @@ func NewClassicGame(gameID, playerNum int) (Game, error) {
 			progress[i] = 0
 		}
 
-		game := &ClassicGame{
+		game := &ChaosGame{
 			gameID:    gameID,
 			playerNum: playerNum,
 			board:     board,
@@ -42,7 +42,7 @@ func NewClassicGame(gameID, playerNum int) (Game, error) {
 	}
 }
 
-func (g *ClassicGame) SetPlayerNum(playerNum int) error {
+func (g *ChaosGame) SetPlayerNum(playerNum int) error {
 	allowed := []int{2, 3, 4, 6}
 	if slices.Contains(allowed, playerNum) {
 		if playerNum >= len(g.players) {
@@ -56,7 +56,7 @@ func (g *ClassicGame) SetPlayerNum(playerNum int) error {
 	}
 }
 
-func (g *ClassicGame) AddPlayer(playerID int) error {
+func (g *ChaosGame) AddPlayer(playerID int) error {
 	if !slices.Contains(g.players, playerID) {
 		if len(g.players) < g.playerNum {
 			g.players = append(g.players, playerID)
@@ -69,43 +69,43 @@ func (g *ClassicGame) AddPlayer(playerID int) error {
 	}
 }
 
-func (g *ClassicGame) GetID() int {
+func (g *ChaosGame) GetID() int {
 	return g.gameID
 }
 
-func (g *ClassicGame) GetBoard() Board {
+func (g *ChaosGame) GetBoard() Board {
 	return g.board
 }
 
-func (g *ClassicGame) GetPlayers() []int {
+func (g *ChaosGame) GetPlayers() []int {
 	return g.players
 }
 
-func (g *ClassicGame) GetPlayerNum() int {
+func (g *ChaosGame) GetPlayerNum() int {
 	return g.playerNum
 }
 
-func (g *ClassicGame) GetCurrentPlayerNum() int {
+func (g *ChaosGame) GetCurrentPlayerNum() int {
 	return len(g.players)
 }
 
-func (g *ClassicGame) GetTurn() int {
+func (g *ChaosGame) GetTurn() int {
 	return g.turn
 }
 
-func (g *ClassicGame) GetPlayerTurn() int {
+func (g *ChaosGame) GetPlayerTurn() int {
 	return g.players[g.turn%g.playerNum]
 }
 
-func (g *ClassicGame) GetProgress() []int {
+func (g *ChaosGame) GetProgress() []int {
 	return g.progress
 }
 
-func (g *ClassicGame) nextTurn() {
+func (g *ChaosGame) nextTurn() {
 	g.turn = (g.turn + 1) % g.playerNum
 }
 
-func (g *ClassicGame) stepCheck(oldX, oldY, x, y int) bool {
+func (g *ChaosGame) stepCheck(oldX, oldY, x, y int) bool {
 
 	if oldY == y && lib.Abs(x-oldX) == 2 {
 		return true
@@ -118,7 +118,7 @@ func (g *ClassicGame) stepCheck(oldX, oldY, x, y int) bool {
 	return false
 }
 
-func (g *ClassicGame) jumpCheck(checked []Point, oldX, oldY, x, y int) bool {
+func (g *ChaosGame) jumpCheck(checked []Point, oldX, oldY, x, y int) bool {
 	checked = append(checked, Point{oldX, oldY})
 	pawns := g.board.GetPawns()
 	board := g.board
@@ -192,23 +192,16 @@ func (g *ClassicGame) jumpCheck(checked []Point, oldX, oldY, x, y int) bool {
 	return false
 }
 
-func (g *ClassicGame) validMove(oldX, oldY, x, y int) {
+func (g *ChaosGame) validMove(oldX, oldY, x, y int) {
 	pawn := g.board.GetPawns().Check(oldX, oldY)
-	pawnDestination := pawn + (pawn%2)*2 - 1
 	currentSquare := g.board.Check(oldX, oldY)
 	newSquare := g.board.Check(x, y)
 
-	if newSquare == pawnDestination && currentSquare != pawnDestination {
+	if newSquare == pawn && currentSquare != pawn {
 		g.progress[pawn-1] += 1
 		fmt.Println(g.progress[pawn-1])
-		if g.playerNum == 2 {
-			if g.progress[pawn-1] == 15 {
-				g.ended = true
-			}
-		} else {
-			if g.progress[pawn-1] == 10 {
-				g.ended = true
-			}
+		if g.progress[pawn-1] == 10 {
+			g.ended = true
 		}
 	}
 
@@ -216,7 +209,7 @@ func (g *ClassicGame) validMove(oldX, oldY, x, y int) {
 	g.nextTurn()
 }
 
-func (g *ClassicGame) Move(playerID, oldX, oldY, x, y int) error {
+func (g *ChaosGame) Move(playerID, oldX, oldY, x, y int) error {
 	if g.ended {
 		return fmt.Errorf("game has ended")
 	}
@@ -246,7 +239,7 @@ func (g *ClassicGame) Move(playerID, oldX, oldY, x, y int) error {
 		return fmt.Errorf("invalid space")
 	}
 
-	if currentSquare == pawn+(pawn%2)*2-1 {
+	if currentSquare == pawn {
 		if newSquare != currentSquare {
 			return fmt.Errorf("cannot escape home destination")
 		}
@@ -265,7 +258,7 @@ func (g *ClassicGame) Move(playerID, oldX, oldY, x, y int) error {
 	return fmt.Errorf("invalid move")
 }
 
-func (g *ClassicGame) SkipTurn(playerID int) error {
+func (g *ChaosGame) SkipTurn(playerID int) error {
 	if g.players[g.turn%g.playerNum] != playerID {
 		return fmt.Errorf("another player's turn")
 	}

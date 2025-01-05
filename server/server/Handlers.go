@@ -76,7 +76,7 @@ func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *g
 		}
 
 		// TODO: add game type to request
-		game, err := gm.CreateGame(req.PlayerNum, "classic")
+		game, err := gm.CreateGame(req.PlayerNum, "chaos")
 		if err != nil {
 			WriteJSON(w, http.StatusBadRequest, fmt.Sprintf("Failed to create game: %v", err))
 			return
