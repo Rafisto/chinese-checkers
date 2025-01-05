@@ -1,3 +1,5 @@
 package game
 
-var GameTypes = [...]func(int, int) (Game, error){NewClassicGame}
+var GameTypes = map[string]func(int, int) (Game, error){
+	"classic": NewClassicGame,
+}

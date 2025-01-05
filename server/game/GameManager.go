@@ -21,10 +21,7 @@ func NewGameManager() *GameManager {
 	return gameManager
 }
 
-func (gm *GameManager) CreateGame(playerNum int, gameType int) (Game, error) {
-	if gameType >= len(GameTypes) {
-		return nil, fmt.Errorf("game of this type doesn't exist")
-	}
+func (gm *GameManager) CreateGame(playerNum int, gameType string) (Game, error) {
 	game, err := GameTypes[gameType](gm.nextGameID, playerNum)
 	if err != nil {
 		return nil, err
