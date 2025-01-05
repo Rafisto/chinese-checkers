@@ -75,12 +75,8 @@ func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *g
 			return
 		}
 
-		board, err := game.NewClassicBoard(req.PlayerNum)
-		if err != nil {
-			WriteJSONError(w, http.StatusBadRequest, fmt.Sprintf("Failed to create board: %v", err))
-			return
-		}
-		game, err := gm.CreateGame(req.PlayerNum, board)
+		// TODO: add game type to request
+		game, err := gm.CreateGame(req.PlayerNum, 0)
 		if err != nil {
 			WriteJSON(w, http.StatusBadRequest, fmt.Sprintf("Failed to create game: %v", err))
 			return

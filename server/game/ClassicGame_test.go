@@ -2,7 +2,7 @@ package game
 
 import "testing"
 
-var game, err = NewGame(0, 6, nil)
+var game, err = NewClassicGame(0, 6)
 
 func TestGameCreation(t *testing.T) {
 	if err != nil {
@@ -14,39 +14,6 @@ func TestGameIDGet(t *testing.T) {
 	id := game.GetID()
 	if id != 0 {
 		t.Fatalf(`game.GetID() = %v, want 0`, id)
-	}
-}
-
-func TestBoardGetNil(t *testing.T) {
-	board := game.GetBoard()
-	if board != nil {
-		t.Fatalf(`game.GetBoard() = %v, want nil`, board)
-	}
-}
-
-func TestBoardSetGet(t *testing.T) {
-	board, err := NewClassicBoard(6)
-	if err != nil {
-		t.Fatalf(`Board creation failed, err: %v`, err)
-	}
-	err = game.SetBoard(board)
-	if err != nil {
-		t.Fatalf(`game.SetBoard(board) = %v, want nil`, err)
-	}
-	newBoard := game.GetBoard()
-	if board != newBoard {
-		t.Fatalf(`game.GetBoard() = %v, want %v`, newBoard, board)
-	}
-}
-
-func TestBoardSetInvalid(t *testing.T) {
-	board, err := NewClassicBoard(2)
-	if err != nil {
-		t.Fatalf(`Board creation failed, err: %v`, err)
-	}
-	err = game.SetBoard(board)
-	if err == nil {
-		t.Fatalf(`game.SetBoard(board) = nil, expected error`)
 	}
 }
 
