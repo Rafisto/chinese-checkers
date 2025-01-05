@@ -25,8 +25,18 @@ const Board = () => {
         const passMap = Array.from({ length: gameState.state.length }, () =>
             Array(gameState.state[0].length).fill(false)
         );
-        const moves = FindMoves(gameState.state, selectedTile, passMap, []);
+
+        let moves: Point[] = [];
+
+        if (lobbyState.gameVariant == "classic") {
+            moves = FindMoves(gameState.board, gameState.state, selectedTile, passMap, [], true);
+        }
+        else {
+            moves = FindMoves(gameState.board, gameState.state, selectedTile, passMap, [], false);
+        }
+        
         setAvailableMoves(moves);
+
     }, [selectedTile, gameState.state]);
 
     // Handle WebSocket messages
@@ -43,7 +53,7 @@ const Board = () => {
                 const data = JSON.parse(event.data);
                 const message = JSON.parse(data.message);
                 console.log(message);
-                setAuditLog((prevAuditLog) => [...prevAuditLog, `Received message: ${data}`]);
+                setAuditLog((prevAuditLog) => [...prevAuditLog, `RX ${JSON.stringify(message)}`]);
                 if (message.type === "server" && message.board !== undefined) {
                     if (message.board == null || message.board.length === 0) {
                         console.log("Received empty board state.");
@@ -66,6 +76,10 @@ const Board = () => {
                     setGameState((prevGameState) => ({ ...prevGameState, state: PerformMove(prevGameState.state, message.start, message.end) }));
                     sendStateRequest();
                 }
+
+                if (message.message == "Skipped Turn" && message.type === undefined) {
+                    sendStateRequest();
+                }
             }
         };
     }, [ws]);
@@ -77,12 +91,13 @@ const Board = () => {
             return;
         }
 
-        ws.send(
-            JSON.stringify({
-                type: "player",
-                action: "state",
-            })
-        );
+        const request = JSON.stringify({
+            type: "player",
+            action: "state",
+        })
+
+        setAuditLog((prevAuditLog) => [...prevAuditLog, `TX ${request}`]);
+        ws.send(request);
     }
 
     // Send board request to server
@@ -92,40 +107,53 @@ const Board = () => {
             return;
         }
 
-        ws.send(
-            JSON.stringify({
-                type: "player",
-                action: "board",
-            })
-        );
+        const request = JSON.stringify({
+            type: "player",
+            action: "board",
+        })
+
+        setAuditLog((prevAuditLog) => [...prevAuditLog, `TX ${request}`]);
+        ws.send(request);
     };
 
     // Send pawn request to server
     const sendPawnsRequest = () => {
         if (!ws) return;
 
-        ws.send(
-            JSON.stringify({
-                type: "player",
-                action: "pawns",
-            })
-        );
+        const request = JSON.stringify({
+            type: "player",
+            action: "pawns",
+        })
+
+        setAuditLog((prevAuditLog) => [...prevAuditLog, `TX ${request}`]);
+        ws.send(request);
     };
 
     // Send move request to server
     const sendNewMove = (playerID: number, start: Point, end: Point) => {
         if (!ws) return;
 
-        ws.send(
-            JSON.stringify({
-                type: "player",
-                action: "move",
-                player_id: playerID,
-                start,
-                end,
-            })
-        );
+        const request =  JSON.stringify({
+            type: "player",
+            action: "move",
+            player_id: playerID,
+            start,
+            end,
+        });
+
+        setAuditLog((prevAuditLog) => [...prevAuditLog, `TX ${request}`]);
+        ws.send(request);
     };
+
+    // Handle try select piece (only if owned by the player)
+    const handleTrySelectPiece = (row: number, col: number) => {
+        // if (gameState.state[row][col] !== gameState.color + 1) {
+        //     console.log(`Cannot select piece that does not belong to the player. (${row}, ${col}) is not ${gameState.color + 1}`);
+        //     return;
+        // }
+
+        setSelectedTile({ row, col });
+    }
 
     // Handle move attempt
     const handleTryMovePiece = (end: Point) => {
@@ -159,7 +187,7 @@ const Board = () => {
                                 key={colIndex}
                                 value={tile}
                                 state={gameState.state[rowIndex][colIndex]}
-                                selectPiece={() => setSelectedTile({ row: rowIndex, col: colIndex })}
+                                selectPiece={() => handleTrySelectPiece(rowIndex, colIndex)}
                                 tryMovePiece={() => handleTryMovePiece({ row: rowIndex, col: colIndex })}
                                 selected={isSelected}
                                 available={isAvailable}

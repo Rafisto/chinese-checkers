@@ -1,5 +1,4 @@
 // chinese checkers state 0d (20rows x 17cols) 
-import { LogicBoard } from "./board";
 
 const LogicState = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
@@ -53,11 +52,34 @@ const PerformMove = (state: number[][], start: Point, end: Point): number[][] =>
     return newState;
 }
 
+const AdjacencyMap: Record<number, number> = {
+    1: 2,
+    2: 1,
+    3: 4,
+    4: 3,
+    5: 6,
+    6: 5
+}
+
+const NoExitCheck = (board: number[][], state: number[][], start: Point, end: Point, inverted: boolean): boolean => {
+    // if inverted
+    if (inverted) {
+        const adjacent = AdjacencyMap[state[start.row][start.col]];
+        return board[start.row][start.col] != adjacent || board[end.row][end.col] == adjacent;
+    }
+    else {
+        const normal = state[start.row][start.col];
+        return board[start.row][start.col] != normal || board[end.row][end.col] == normal;
+    }
+}
+
 const FindMoves = (
+    board: number[][],
     state: number[][],
     position: Point,
     passMap: boolean[][],
-    moves: Point[] = []
+    moves: Point[] = [],
+    inverted: boolean = true
 ): Point[] => {
     passMap[position.row][position.col] = true;
 
@@ -70,7 +92,7 @@ const FindMoves = (
             if (
                 newRow >= 0 && newRow < state.length &&
                 newCol >= 0 && newCol < state[0].length &&
-                LogicBoard[newRow][newCol] !== -1 &&
+                board[newRow][newCol] !== -1 &&
                 state[newRow][newCol] === 0 &&
                 !passMap[newRow][newCol]
             ) {
@@ -92,19 +114,20 @@ const FindMoves = (
             midCol >= 0 && midCol < state[0].length &&
             newRow >= 0 && newRow < state.length &&
             newCol >= 0 && newCol < state[0].length &&
-            LogicBoard[newRow][newCol] !== -1 &&
-            LogicBoard[midRow][midCol] !== -1 &&
+            board[newRow][newCol] !== -1 &&
+            board[midRow][midCol] !== -1 &&
             state[midRow][midCol] !== 0 &&
             state[newRow][newCol] === 0 &&
             !passMap[newRow][newCol]
         ) {
             const newPosition = { row: newRow, col: newCol };
             moves.push(newPosition);
-            FindMoves(state, newPosition, passMap, moves);
+            FindMoves(board, state, newPosition, passMap, moves, inverted);
         }
     }
 
-    return moves;
+    // Check wheter any of the moves doesn't pass no adjacent exit rule
+    return moves.filter((move) => NoExitCheck(board, state, position, move, inverted));
 };
 
 

@@ -214,6 +214,15 @@ func (s *Server) HandlePlayerMessage(conn *websocket.Conn, gameID, playerID int,
 
 	// move a pawn
 	if playerRequest.Type == "player" && playerRequest.Action == "move" {
+		if playerRequest.Start.Row == 0 && playerRequest.Start.Col == 0 && playerRequest.End.Row == 0 && playerRequest.End.Col == 0 {
+			log.Printf("[INFO] Game %d Player %d requests a skip", gameID, playerID)
+			s.GameManager.GetGames()[gameID].SkipTurn(playerID)
+
+			log.Printf("[INFO] Sending game state to Game %d (all players)", gameID)
+			errorMessage, _ := json.Marshal(map[string]string{"message": "Skipped Turn"})
+			WBroadcastToGame(gameID, string(errorMessage), s)
+		}
+
 		log.Printf("[INFO] Game %d Player %d requests a move from (%d, %d) to (%d, %d)", gameID, playerRequest.PlayerID, playerRequest.Start.Col, playerRequest.Start.Row, playerRequest.End.Col, playerRequest.End.Row)
 		err := s.GameManager.GetGames()[gameID].Move(playerID, playerRequest.Start.Col, playerRequest.Start.Row, playerRequest.End.Col, playerRequest.End.Row)
 

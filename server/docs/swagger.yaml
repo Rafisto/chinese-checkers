@@ -2,6 +2,8 @@ basePath: /
 definitions:
   server.CreateGameRequest:
     properties:
+      gameVariant:
+        type: string
       playerNum:
         type: integer
     type: object
@@ -18,10 +20,19 @@ definitions:
         type: integer
       maxPlayers:
         type: integer
+      variant:
+        type: string
     type: object
   server.JoinGameRequest:
     properties:
       username:
+        type: string
+    type: object
+  server.JoinGameResponse:
+    properties:
+      id:
+        type: integer
+      message:
         type: string
     type: object
   server.Response:
@@ -110,7 +121,7 @@ paths:
         "200":
           description: Successfully joined the game
           schema:
-            $ref: '#/definitions/server.Response'
+            $ref: '#/definitions/server.JoinGameResponse'
         "400":
           description: Bad request, missing fields or invalid data
           schema:

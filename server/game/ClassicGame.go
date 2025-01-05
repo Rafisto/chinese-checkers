@@ -73,6 +73,10 @@ func (g *ClassicGame) GetID() int {
 	return g.gameID
 }
 
+func (g *ClassicGame) GetVariant() string {
+	return "classic"
+}
+
 func (g *ClassicGame) GetBoard() Board {
 	return g.board
 }

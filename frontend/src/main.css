@@ -94,6 +94,7 @@ body,
 }
 
 .board {
+    z-index: 100;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -132,11 +133,26 @@ body,
     padding: 10px 20px;
 }
 
-.audit-log {
+.audit-log-btn {
+    z-index: 10;
     position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.audit-log {
+    z-index: 9;
+    position: absolute;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    overflow-y: scroll;
     top: 0;
     left: 0;
     width: 20%;
     font-size: 8pt;
-    height: 100%;
+    height: 100vh;
+}
+
+.audit-log::-webkit-scrollbar { 
+    display: none;  /* Safari and Chrome */
 }

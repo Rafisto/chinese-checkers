@@ -22,10 +22,10 @@ const Join = ({ joined, setJoined }: JoinProps) => {
         return () => clearInterval(interval);
     }, []);
 
-    const handleJoinGame = async (gameID: number) => {
+    const handleJoinGame = async (gameID: number, gameVariant: string) => {
         try {
             const resp = await APIJoinGame(serverAddress, gameID, lobbyState.playerName);
-            setLobbyState({ ...lobbyState, playerID: resp.id, gameID });
+            setLobbyState({ ...lobbyState, playerID: resp.id, gameID: gameID, gameVariant: gameVariant });
             setJoined(true);
             setAuditLog([...auditLog, `Joined game ${gameID}, my playerID is ${resp.id}`]);
         }
@@ -43,8 +43,8 @@ const Join = ({ joined, setJoined }: JoinProps) => {
             <ul>
                 {games.sort((a, b) => (a.id > b.id ? 1 : -1)).map((game, index) => (
                     <li key={index} style={{ marginBottom: "3px" }}>
-                        <button onClick={() => handleJoinGame(game.id)} style={{ padding: "5px 10px", marginInline: "5px" }}>Join</button>
-                        <span>GameID = {game.id}, {game.currentPlayers}/{game.maxPlayers} Players</span>
+                        <button onClick={() => handleJoinGame(game.id, game.variant)} style={{ padding: "5px 10px", marginInline: "5px" }}>Join</button>
+                        <span>GameID = {game.id} ({game.variant}), {game.currentPlayers}/{game.maxPlayers} Players</span>
                     </li>
                 ))}
             </ul>

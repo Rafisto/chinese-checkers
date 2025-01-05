@@ -54,7 +54,8 @@ func WriteJSONError(w http.ResponseWriter, code int, err string) {
 //
 //	@Summary	Create game request to send to the CreateGameHandler
 type CreateGameRequest struct {
-	PlayerNum int `json:"playerNum"`
+	PlayerNum   int    `json:"playerNum"`
+	GameVariant string `json:"gameVariant"`
 }
 
 // CreateGameHandler godoc
@@ -75,8 +76,7 @@ func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *g
 			return
 		}
 
-		// TODO: add game type to request
-		game, err := gm.CreateGame(req.PlayerNum, "chaos")
+		game, err := gm.CreateGame(req.PlayerNum, req.GameVariant)
 		if err != nil {
 			WriteJSON(w, http.StatusBadRequest, fmt.Sprintf("Failed to create game: %v", err))
 			return
@@ -90,9 +90,10 @@ func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *g
 }
 
 type GameResponse struct {
-	ID             int `json:"id"`
-	CurrentPlayers int `json:"currentPlayers"`
-	MaxPlayers     int `json:"maxPlayers"`
+	ID             int    `json:"id"`
+	CurrentPlayers int    `json:"currentPlayers"`
+	MaxPlayers     int    `json:"maxPlayers"`
+	Variant        string `json:"variant"`
 }
 
 // GetGameHandler godoc
@@ -125,6 +126,7 @@ func (s *Server) GetGameHandler(w http.ResponseWriter, r *http.Request, gm *game
 			ID:             game.GetID(),
 			CurrentPlayers: game.GetCurrentPlayerNum(),
 			MaxPlayers:     game.GetPlayerNum(),
+			Variant:        game.GetVariant(),
 		})
 
 		return
@@ -156,13 +158,15 @@ func (s *Server) GetGamesHandler(w http.ResponseWriter, r *http.Request, gm *gam
 		gameList := make(GamesResponse, 0)
 		for _, game := range games {
 			gameList = append(gameList, struct {
-				ID             int `json:"id"`
-				CurrentPlayers int `json:"currentPlayers"`
-				MaxPlayers     int `json:"maxPlayers"`
+				ID             int    `json:"id"`
+				CurrentPlayers int    `json:"currentPlayers"`
+				MaxPlayers     int    `json:"maxPlayers"`
+				Variant        string `json:"variant"`
 			}{
 				ID:             game.GetID(),
 				CurrentPlayers: game.GetCurrentPlayerNum(),
 				MaxPlayers:     game.GetPlayerNum(),
+				Variant:        game.GetVariant(),
 			})
 		}
 

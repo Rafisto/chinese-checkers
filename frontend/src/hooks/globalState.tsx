@@ -3,6 +3,7 @@ import { LogicState } from '../logic/state';
 import { LogicBoard } from '../logic/board';
 
 interface LobbyState {
+    gameVariant: string;
     playerName: string;
     playerID: number;
     gameID: number;
@@ -39,6 +40,7 @@ interface GlobalStateProviderProps {
 export const GlobalStateProvider = ({ children }: GlobalStateProviderProps) => {
     const [serverAddress, setServerAddress] = useState<string>('http://localhost:8080');
     const [lobbyState, setLobbyState] = useState<LobbyState>({
+        gameVariant: 'classic',
         playerName: 'player',
         playerID: -1,
         gameID: -1,

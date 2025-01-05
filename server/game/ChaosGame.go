@@ -73,6 +73,10 @@ func (g *ChaosGame) GetID() int {
 	return g.gameID
 }
 
+func (g *ChaosGame) GetVariant() string {
+	return "chaos"
+}
+
 func (g *ChaosGame) GetBoard() Board {
 	return g.board
 }

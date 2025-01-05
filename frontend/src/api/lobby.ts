@@ -4,12 +4,13 @@ type BasicResponse = {
     message: string,
 }
 
-const APICreateGame = async (api_url: string, playerCount: number) => {
+const APICreateGame = async (api_url: string, playerCount: number, gameVariant: string) => {
     console.log("Creating game with player count: ", playerCount);
 
     console.log("Querying: ", `${api_url}/games`);
     const response = await axios.post(`${api_url}/games`, {
         playerNum: playerCount,
+        gameVariant: gameVariant,
     })
 
     if (response.status !== 201) {
@@ -25,7 +26,8 @@ const APICreateGame = async (api_url: string, playerCount: number) => {
 type ListGameResponse = {
     id: number,
     currentPlayers: number,
-    maxPlayers: number,
+    maxPlayers: number, 
+    variant: string,
 }
 
 const APIListGames = async (api_url: string) => {

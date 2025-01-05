@@ -19,4 +19,11 @@ const PlayerColors: Record<string, string> = {
     '6': 'yellow'
 }
 
-export { BoardColors, PlayerColors };
+const ThreePlayerColors: Record<string, string> = {
+    '0': 'transparent',
+    '1': 'red',
+    '2': 'lime',
+    '3': 'magenta',
+}
+
+export { BoardColors, PlayerColors, ThreePlayerColors };
