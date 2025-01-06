@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useGlobalState } from '../hooks/globalState';
+import { useGlobalState } from '../hooks/useGlobalState';
 import { APIJoinGame, APIListGames, ListGameResponse } from '../api/lobby';
 
 type JoinProps = {
@@ -12,6 +12,7 @@ const Join = ({ joined, setJoined }: JoinProps) => {
     const [games, setGames] = useState<ListGameResponse[]>([]);
 
     useEffect(() => {
+        // polling via REST
         const interval = setInterval(async () => {
             if (!joined) {
                 const activeGames = await APIListGames(serverAddress);

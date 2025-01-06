@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { useGlobalState } from "./hooks/globalState";
+import { useGlobalState } from "./hooks/useGlobalState";
+import { createWebSocketConnection } from "./api/wsconnect";
 import Connect from "./lobby/connect";
 import Create from "./lobby/create"
 import Join from "./lobby/join"
@@ -15,28 +16,19 @@ const Menu = () => {
             return;
         }
 
-        let ws = new WebSocket(`${serverAddress.replace('http://', 'ws://')}/ws?gameID=${lobbyState.gameID}&playerID=${lobbyState.playerID}`);
-        ws.onopen = () => {
-            setAuditLog((prevAuditLog: string[]) => [...prevAuditLog, "Connected to websocket"]);
-        }
-        ws.onclose = () => {
-            setAuditLog((prevAuditLog: string[]) => [...prevAuditLog, "Disconnected from websocket"]);
-        }
-        ws.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            setAuditLog((prevAuditLog: string[]) => [...prevAuditLog, `Received message: ${data}`]);
-        }
-
-        setWS(ws);
-
-        const wsCurrent = ws;
+        const ws = createWebSocketConnection(
+            serverAddress,
+            lobbyState.gameID,
+            lobbyState.playerID,
+            setAuditLog,
+            setWS
+        );
 
         return () => {
-            wsCurrent.close();
+            ws.close();
             setWS(null);
-        }
-
-    }, [joined, serverAddress, lobbyState, setAuditLog]);
+        };
+    }, [joined, serverAddress, lobbyState, setAuditLog, setWS]);
 
     return (
         <div className="menu">

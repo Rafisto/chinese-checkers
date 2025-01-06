@@ -1,5 +1,5 @@
 import { APIListGames } from "../api/lobby";
-import { useGlobalState } from "../hooks/globalState";
+import { useGlobalState } from "../hooks/useGlobalState";
 
 type ConnectProps = {
     setConnected: (connected: boolean) => void;
@@ -25,7 +25,6 @@ const Connect = ({ setConnected }: ConnectProps) => {
         <div>
             <p>Server API</p>
             <input type="text" value={serverAddress} onChange={(e) => setServerAddress(e.currentTarget.value)}></input>
-            <br />
             <p>Enter your name</p>
             <input type="text" value={lobbyState.playerName} onChange={(e) => setLobbyState({ ...lobbyState, playerName: e.currentTarget.value })}></input>
             <button onClick={() => connect()} className={"wide"}>Connect</button>

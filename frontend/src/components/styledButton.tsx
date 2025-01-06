@@ -11,7 +11,7 @@ const StyledButton = ({ text, handleClick, loading, loadingText, className }: St
         <button
             className={className}
             onClick={handleClick}
-            disabled={loading} // Disable button while loading
+            disabled={loading}
             style={{
                 color: 'white',
                 fontWeight: 'bold',
