@@ -155,6 +155,7 @@ func (s *Server) HandlePlayerMessage(conn *websocket.Conn, gameID, playerID int,
 			"players": requestedGame.GetPlayers(),
 			"current": requestedGame.GetPlayerTurn(),
 			"turn":    requestedGame.GetTurn(),
+			"ended":   requestedGame.GetEnded(),
 		}
 
 		gameStateJSON, err := json.Marshal(gameState)

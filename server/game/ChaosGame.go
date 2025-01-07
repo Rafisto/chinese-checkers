@@ -214,7 +214,9 @@ func (g *ChaosGame) validMove(oldX, oldY, x, y int) {
 	}
 
 	g.board.GetPawns().Move(oldX, oldY, x, y)
-	g.nextTurn()
+	if !g.ended {
+		g.nextTurn()
+	}
 }
 
 func (g *ChaosGame) Move(playerID, oldX, oldY, x, y int) error {

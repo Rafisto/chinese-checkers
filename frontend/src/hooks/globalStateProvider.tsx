@@ -18,6 +18,7 @@ interface GameState {
     turn: number;
     board: number[][];
     state: number[][];
+    ended: boolean;
 }
 
 interface GlobalStateProviderProps {
@@ -41,6 +42,7 @@ export const GlobalStateProvider = ({ children }: GlobalStateProviderProps) => {
         turn: -1,
         board: LogicBoard,
         state: LogicState,
+        ended: false,
     });
 
     return (

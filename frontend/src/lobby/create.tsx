@@ -22,9 +22,11 @@ const Create = () => {
         try {
             await APICreateGame(serverAddress, numPlayers, gameVariant);
             setAuditLog([...auditLog, "Game Created"]);
-        } catch (error) {
-            setAuditLog([...auditLog, "Failed to create game"]);
-        } finally {
+        } catch (e) {
+            const errorMessage = e instanceof Error ? e.message : String(e);
+            setAuditLog([...auditLog, `Failed to create game: ${errorMessage}`]);
+        }
+        finally {
             setLoading(false);
         }
     };

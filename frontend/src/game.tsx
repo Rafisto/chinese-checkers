@@ -17,7 +17,7 @@ const Game = () => {
         if (ws) {
             handleWebSocketMessages(ws, setAuditLog, setGameState);
         }
-    }, [ws]);
+    }, [ws, setAuditLog, setGameState]);
     
 
     // Fetch available moves when a tile is selected
@@ -41,7 +41,7 @@ const Game = () => {
 
         setAvailableMoves(moves);
 
-    }, [selectedTile, gameState.state]);
+    }, [selectedTile, gameState.state, gameState.board, lobbyState.gameVariant]);
 
     // Handle try select piece (only if owned by the player)
     const handleTrySelectPiece = (row: number, col: number) => {

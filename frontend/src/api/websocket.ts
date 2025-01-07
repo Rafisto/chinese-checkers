@@ -1,7 +1,8 @@
+import { GameState } from "../hooks/globalStateProvider";
 import { PerformMove } from "../logic/state";
 import { Point } from "../logic/types";
 
-const handleWebSocketMessages = (ws: WebSocket | null, setAuditLog: React.Dispatch<React.SetStateAction<string[]>>, setGameState: React.Dispatch<React.SetStateAction<any>>) => {
+const handleWebSocketMessages = (ws: WebSocket | null, setAuditLog: React.Dispatch<React.SetStateAction<string[]>>, setGameState: React.Dispatch<React.SetStateAction<GameState>>) => {
     if (!ws) return;
 
     ws.onopen = () => {
@@ -21,22 +22,22 @@ const handleWebSocketMessages = (ws: WebSocket | null, setAuditLog: React.Dispat
             if (message.board == null || message.board.length === 0) {
                 console.log("Received empty board state.");
             }
-            setGameState((prevGameState: any) => ({ ...prevGameState, board: message.board }));
+            setGameState((prevGameState: GameState) => ({ ...prevGameState, board: message.board }));
         }
 
         if (message.type === "server" && message.pawns !== undefined) {
             if (message.pawns == null || message.pawns.length === 0) {
                 console.log("Received empty pawns state.");
             }
-            setGameState((prevGameState: any) => ({ ...prevGameState, state: message.pawns }));
+            setGameState((prevGameState: GameState) => ({ ...prevGameState, state: message.pawns }));
         }
 
         if (message.type === "server" && message.action === "state") {
-            setGameState((prevGameState: any) => ({ ...prevGameState, players: message.players, turn: message.turn, current: message.current, color: message.color }));
+            setGameState((prevGameState: GameState) => ({ ...prevGameState, players: message.players, turn: message.turn, current: message.current, color: message.color, ended: message.ended }));
         }
 
         if (message.type === "server" && message.action === "move") {
-            setGameState((prevGameState: { state: any; }) => ({ ...prevGameState, state: PerformMove(prevGameState.state, message.start, message.end) }));
+            setGameState((prevGameState: GameState) => ({ ...prevGameState, state: PerformMove(prevGameState.state, message.start, message.end) }));
             sendStateRequest(ws, setAuditLog);
         }
 

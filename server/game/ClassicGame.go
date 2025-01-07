@@ -221,7 +221,9 @@ func (g *ClassicGame) validMove(oldX, oldY, x, y int) {
 	}
 
 	g.board.GetPawns().Move(oldX, oldY, x, y)
-	g.nextTurn()
+	if !g.ended {
+		g.nextTurn()
+	}
 }
 
 func (g *ClassicGame) Move(playerID, oldX, oldY, x, y int) error {

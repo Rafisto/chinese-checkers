@@ -21,7 +21,7 @@ const Join = ({ joined, setJoined }: JoinProps) => {
         }, 1000);
 
         return () => clearInterval(interval);
-    }, []);
+    }, [joined, serverAddress]);
 
     const handleJoinGame = async (gameID: number, gameVariant: string) => {
         try {
