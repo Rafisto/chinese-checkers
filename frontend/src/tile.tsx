@@ -1,6 +1,6 @@
-import { BoardColors, PlayerColors } from "./colors";
+import { BoardColors, PlayerColors } from "./logic/colors";
 
-interface BoardTileProps {
+interface TileProps {
     value: number;
     state: number;
     selectPiece: () => void;
@@ -9,7 +9,7 @@ interface BoardTileProps {
     available?: boolean;
 }
 
-const BoardTile: React.FC<BoardTileProps> = ({ value, state, selectPiece, tryMovePiece, selected, available }: BoardTileProps) => {
+const Tile: React.FC<TileProps> = ({ value, state, selectPiece, tryMovePiece, selected, available }: TileProps) => {
     if (value === -1) {
         return <div className={"board-tile"}></div>;
     }
@@ -42,4 +42,4 @@ const BoardTile: React.FC<BoardTileProps> = ({ value, state, selectPiece, tryMov
     );
 }
 
-export default BoardTile;
+export default Tile;

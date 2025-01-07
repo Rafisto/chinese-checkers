@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useGlobalState } from "../hooks/globalState";
+import { useGlobalState } from "../hooks/useGlobalState";
 
 const AuditLog = () => {
     const { auditLog } = useGlobalState();

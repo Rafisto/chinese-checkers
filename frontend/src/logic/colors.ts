@@ -26,4 +26,20 @@ const ThreePlayerColors: Record<string, string> = {
     '3': 'magenta',
 }
 
+const getPlayerColor = (playerID: number, playerCount: number) => {
+    if (playerCount == 3) {
+        return ThreePlayerColors[playerID + 1];
+    }
+    return PlayerColors[playerID + 1];
+}
+
+const getPlayerTurnColor = (playerID: number, playerCount: number) => {
+    if (playerCount == 3) {
+        return ThreePlayerColors[playerID];
+    }
+    return PlayerColors[playerID];
+}
+
+
 export { BoardColors, PlayerColors, ThreePlayerColors };
+export { getPlayerColor, getPlayerTurnColor };
