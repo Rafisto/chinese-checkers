@@ -12,6 +12,7 @@ type Game interface {
 	GetPlayerTurn() int
 	GetProgress() []int
 	GetVariant() string
+	GetEnded() bool
 	Move(playerID, oldX, oldY, x, y int) error
 	SkipTurn(playerID int) error
 }
