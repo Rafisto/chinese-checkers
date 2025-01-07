@@ -1,50 +1,94 @@
-# React + TypeScript + Vite
+# Chinese checkers Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+- [Chinese checkers Frontend](#chinese-checkers-frontend)
+  - [Dependencies](#dependencies)
+  - [Documentation](#documentation)
+  - [Linting](#linting)
+  - [Testing](#testing)
+    - [Run workflow via act](#run-workflow-via-act)
+  - [Project Structure](#project-structure)
+  
 
-Currently, two official plugins are available:
+## Dependencies
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- [TypeScript](https://www.typescriptlang.org/)
+- [React](https://reactjs.org/)
+- [Redux](https://redux.js.org/)
+- [Styled Components](https://styled-components.com/)
+- [Jest](https://jestjs.io/)
+- [React Testing Library](https://testing-library.com/docs/react-testing-library/intro)
+- [ESLint](https://eslint.org/)
+- [Prettier](https://prettier.io/)
 
-## Expanding the ESLint configuration
+Install via
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
-
-- Configure the top-level `parserOptions` property like this:
-
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+```bash
+bun install
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## Documentation
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+Run JSDoc to generate documentation.
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```bash
+bun run typedoc
+```
+
+## Linting
+
+```bash
+bun lint
+```
+
+## Testing 
+
+```bash
+bun test
+```
+
+### Run workflow via act
+
+```bash
+act -j react
+```
+
+## Project Structure
+
+Frontend project structure is presented below.
+
+```plaintext
+.
+├── README.md
+├── package.json
+├── public
+│   ├── index.html
+│   └── manifest.json
+├── src
+│   ├── App.tsx
+│   ├── components
+│   │   ├── AppContainer.tsx
+│   │   ├── Board.tsx
+│   │   ├── Cell.tsx
+│   │   ├── Game.tsx
+│   │   ├── Home.tsx
+│   │   ├── Menu.tsx
+│   │   ├── Player.tsx
+│   │   ├── PlayerList.tsx
+│   │   └── PlayerStats.tsx
+│   ├── config
+│   │   └── index.ts
+│   ├── index.tsx
+│   ├── react-app-env.d.ts
+│   ├── serviceWorker.ts
+│   ├── setupTests.ts
+│   ├── store
+│   │   ├── actions.ts
+│   │   ├── index.ts
+│   │   ├── reducer.ts
+│   │   └── types.ts
+│   └── utils
+│       ├── index.ts
+│       └── test.ts
+├── tsconfig.json
+└── yarn.lock
 ```
