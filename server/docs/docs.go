@@ -122,7 +122,7 @@ const docTemplate = `{
                     "200": {
                         "description": "Successfully joined the game",
                         "schema": {
-                            "$ref": "#/definitions/server.Response"
+                            "$ref": "#/definitions/server.JoinGameResponse"
                         }
                     },
                     "400": {
@@ -220,6 +220,9 @@ const docTemplate = `{
         "server.CreateGameRequest": {
             "type": "object",
             "properties": {
+                "gameVariant": {
+                    "type": "string"
+                },
                 "playerNum": {
                     "type": "integer"
                 }
@@ -244,6 +247,9 @@ const docTemplate = `{
                 },
                 "maxPlayers": {
                     "type": "integer"
+                },
+                "variant": {
+                    "type": "string"
                 }
             }
         },
@@ -251,6 +257,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "username": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.JoinGameResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "message": {
                     "type": "string"
                 }
             }

@@ -1,0 +1,72 @@
+import { handleSkipTurn } from "../api/websocket";
+import { useGlobalState } from "../hooks/useGlobalState";
+import { getPlayerColor, getPlayerTurnColor } from "../logic/colors";
+
+const Stats = () => {
+    const { gameState, lobbyState, ws, setAuditLog } = useGlobalState();
+
+    return (
+        <div>
+            <h2>Game Stats ({lobbyState.gameVariant})</h2>
+            <p>All Players {gameState.players.map((player) => player).join(", ")}</p>
+            <hr />
+            <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                <div style={{ marginRight: "10px" }}>
+                    My Player
+                </div>
+                <div
+                    className={"board-tile-circle board-tile-circle-active"}
+                    style={{
+                        border: `4px solid ${getPlayerColor(gameState.color, gameState.players.length)}`,
+                        color: `${getPlayerColor(gameState.color, gameState.players.length)}`,
+                        backgroundColor: `${getPlayerColor(gameState.color, gameState.players.length)}`,
+                    }}>
+                    {gameState.color}
+                </div>
+            </div>
+            <hr />
+            {!gameState.ended ?
+                <>
+                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                        <div style={{ marginRight: "10px" }}>
+                            Player to Move
+                        </div>
+                        <div
+                            className={"board-tile-circle board-tile-circle-active"}
+                            style={{
+                                border: `4px solid ${getPlayerTurnColor(gameState.turn % gameState.players.length + 1, gameState.players.length)}`,
+                                color: `${getPlayerTurnColor(gameState.turn % gameState.players.length + 1, gameState.players.length)}`,
+                                backgroundColor: `${getPlayerTurnColor(gameState.turn % gameState.players.length + 1, gameState.players.length)}`,
+                            }}>
+                        </div>
+                    </div>
+                    <hr />
+                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                        <button className={"wide"} onClick={() => handleSkipTurn(ws, setAuditLog, lobbyState.playerID)}>Skip Turn</button>
+                    </div>
+                </>
+                :
+                <>
+                    <div style={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
+                        <div style={{ marginRight: "10px" }}>
+                            Game Over. Player
+                        </div>
+                        <div
+                            className={"board-tile-circle board-tile-circle-active"}
+                            style={{
+                                border: `4px solid ${getPlayerTurnColor(gameState.turn % gameState.players.length + 1, gameState.players.length)}`,
+                                color: `${getPlayerTurnColor(gameState.turn % gameState.players.length + 1, gameState.players.length)}`,
+                                backgroundColor: `${getPlayerTurnColor(gameState.turn % gameState.players.length + 1, gameState.players.length)}`,
+                            }}>
+                        </div>
+                        <div style={{ marginLeft: "10px" }}>
+                            Wins!
+                        </div>
+                    </div>
+                </>
+            }
+        </div>
+    );
+}
+
+export default Stats;

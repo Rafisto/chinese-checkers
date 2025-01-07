@@ -54,7 +54,8 @@ func WriteJSONError(w http.ResponseWriter, code int, err string) {
 //
 //	@Summary	Create game request to send to the CreateGameHandler
 type CreateGameRequest struct {
-	PlayerNum int `json:"playerNum"`
+	PlayerNum   int    `json:"playerNum"`
+	GameVariant string `json:"gameVariant"`
 }
 
 // CreateGameHandler godoc
@@ -75,7 +76,7 @@ func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *g
 			return
 		}
 
-		game, err := gm.CreateGame(req.PlayerNum, nil)
+		game, err := gm.CreateGame(req.PlayerNum, req.GameVariant)
 		if err != nil {
 			WriteJSON(w, http.StatusBadRequest, fmt.Sprintf("Failed to create game: %v", err))
 			return
@@ -89,9 +90,10 @@ func (s *Server) CreateGameHandler(w http.ResponseWriter, r *http.Request, gm *g
 }
 
 type GameResponse struct {
-	ID             int `json:"id"`
-	CurrentPlayers int `json:"currentPlayers"`
-	MaxPlayers     int `json:"maxPlayers"`
+	ID             int    `json:"id"`
+	CurrentPlayers int    `json:"currentPlayers"`
+	MaxPlayers     int    `json:"maxPlayers"`
+	Variant        string `json:"variant"`
 }
 
 // GetGameHandler godoc
@@ -124,6 +126,7 @@ func (s *Server) GetGameHandler(w http.ResponseWriter, r *http.Request, gm *game
 			ID:             game.GetID(),
 			CurrentPlayers: game.GetCurrentPlayerNum(),
 			MaxPlayers:     game.GetPlayerNum(),
+			Variant:        game.GetVariant(),
 		})
 
 		return
@@ -155,13 +158,15 @@ func (s *Server) GetGamesHandler(w http.ResponseWriter, r *http.Request, gm *gam
 		gameList := make(GamesResponse, 0)
 		for _, game := range games {
 			gameList = append(gameList, struct {
-				ID             int `json:"id"`
-				CurrentPlayers int `json:"currentPlayers"`
-				MaxPlayers     int `json:"maxPlayers"`
+				ID             int    `json:"id"`
+				CurrentPlayers int    `json:"currentPlayers"`
+				MaxPlayers     int    `json:"maxPlayers"`
+				Variant        string `json:"variant"`
 			}{
 				ID:             game.GetID(),
 				CurrentPlayers: game.GetCurrentPlayerNum(),
 				MaxPlayers:     game.GetPlayerNum(),
+				Variant:        game.GetVariant(),
 			})
 		}
 
@@ -176,6 +181,11 @@ type JoinGameRequest struct {
 	Username string `json:"username"`
 }
 
+type JoinGameResponse struct {
+	Message string `json:"message"`
+	ID      int    `json:"id"`
+}
+
 // JoinGameHandler godoc
 //
 //	@Summary	Join a game by its ID, provided the username
@@ -184,7 +194,7 @@ type JoinGameRequest struct {
 //	@Produce	json
 //	@Param		game_id		path		string	true	"Game ID"
 //	@Param		username	body		JoinGameRequest	true	"Player username"
-//	@Success	200			{object}	Response	"Successfully joined the game"
+//	@Success	200			{object}	JoinGameResponse	"Successfully joined the game"
 //	@Failure	400			{object}	ErrorResponse	"Bad request, missing fields or invalid data"
 //	@Router		/games/{game_id}/join [post].
 func (s *Server) JoinGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
