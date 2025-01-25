@@ -10,7 +10,7 @@ const APISaveGame = async (
   });
 
   if (response.status !== 201) {
-    throw new Error("Unable to create the bot");
+    throw new Error("Unable to save the game");
   } else {
     return;
   }
@@ -19,8 +19,8 @@ const APISaveGame = async (
 const APILoadGame = async (api_url: string, gameName: string) => {
   const response = await axios.get(`${api_url}/load/${gameName}`)
 
-  if (response.status !== 201) {
-    throw new Error("Unable to create the bot");
+  if (response.status !== 200) {
+    throw new Error("Unable to load the game");
   } else {
     return;
   }

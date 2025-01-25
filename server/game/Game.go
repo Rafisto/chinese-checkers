@@ -13,6 +13,8 @@ type Game interface {
 	GetProgress() []int
 	GetVariant() string
 	GetEnded() bool
+	GetNotify() func(int, string)
+	SetNotify(func(int, string))
 	SetTurn(int)
 	SetProgress([]int)
 	SetEnded(bool)

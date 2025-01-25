@@ -31,10 +31,16 @@ type Server struct {
 // NewServer godoc
 // @Summary Create a new HTTP/WebSocket Server
 func NewServer() *Server {
-	return &Server{
+	server := Server{
 		GameManager:     game.NewGameManager(),
 		GameConnections: make(map[int][]GameConnection),
 	}
+
+	server.GameManager.RegisterNotify(func(i int, s string) {
+		WBroadcastToGame(i, s, &server)
+	})
+
+	return &server
 }
 
 // createHandlers godoc

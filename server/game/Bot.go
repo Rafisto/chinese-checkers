@@ -1,8 +1,10 @@
 package game
 
 import (
+	"encoding/json"
 	"math/rand"
 	"slices"
+	"time"
 )
 
 type Bot struct {
@@ -136,6 +138,8 @@ func (b *Bot) CalculateMoves() error {
 }
 
 func (b *Bot) Move() (x, y, newx, newy int) {
+	time.Sleep(300 * time.Millisecond)
+
 	b.CalculateMoves()
 
 	length := len(b.moves)
@@ -151,4 +155,23 @@ func (b *Bot) Move() (x, y, newx, newy int) {
 
 func (b *Bot) UpdateBoard(board Board) {
 	b.board = board
+}
+
+func MoveToJSON(playerID, startX, startY, endX, endY int) string {
+	move := map[string]interface{}{
+		"type":      "server",
+		"action":    "move",
+		"player_id": playerID,
+		"start": map[string]int{
+			"row": startY,
+			"col": startX,
+		},
+		"end": map[string]int{
+			"row": endY,
+			"col": endX,
+		},
+	}
+
+	jsonData, _ := json.Marshal(move)
+	return string(jsonData)
 }

@@ -3,6 +3,7 @@ package game
 import (
 	"chinese-checkers/lib"
 	"fmt"
+	"log"
 	"slices"
 )
 
@@ -15,6 +16,7 @@ type ClassicGame struct {
 	progress  []int
 	ended     bool
 	bots      map[int]*Bot
+	notify    func(int, string)
 }
 
 func NewClassicGame(gameID, playerNum int) (Game, error) {
@@ -70,7 +72,7 @@ func (g *ClassicGame) AddPlayer(playerID int) error {
 	g.players = append(g.players, playerID)
 
 	if len(g.players) == g.playerNum {
-		if _, ok := g.bots[g.players[0]]; ok {
+		if _, ok := g.bots[g.players[g.turn%g.playerNum]]; ok {
 			err := g.botMove()
 			if err != nil {
 				return err
@@ -136,7 +138,9 @@ func (g *ClassicGame) SetEnded(ended bool) {
 func (g *ClassicGame) nextTurn() {
 	g.turn = (g.turn + 1) % g.playerNum
 	if _, ok := g.bots[g.players[g.turn%g.playerNum]]; ok {
-		g.botMove()
+		go (func() {
+			g.botMove()
+		})()
 	}
 }
 
@@ -335,6 +339,10 @@ func (g *ClassicGame) botMove() error {
 		g.SkipTurn(bot.GetBotID())
 	}
 
+	move := MoveToJSON(bot.GetBotID(), x, y, newx, newy)
+	log.Printf("[BOT] (GameID=%d) Notify of move (%d,%d)->(%d,%d)", g.gameID, x, y, newx, newy)
+	g.notify(g.gameID, move)
+
 	return err
 }
 
@@ -365,4 +373,12 @@ func (g *ClassicGame) AddBot(botID int) error {
 	g.bots[botID] = bot
 
 	return nil
+}
+
+func (g *ClassicGame) GetNotify() func(int, string) {
+	return g.notify
+}
+
+func (g *ClassicGame) SetNotify(notify func(int, string)) {
+	g.notify = notify
 }

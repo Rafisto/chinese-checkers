@@ -10,6 +10,7 @@ type GameManager struct {
 	games        map[int]Game
 	nextPlayerID int
 	players      map[int]*Player
+	notify       func(int, string)
 }
 
 func NewGameManager() *GameManager {
@@ -22,11 +23,16 @@ func NewGameManager() *GameManager {
 	return gameManager
 }
 
+func (gm *GameManager) RegisterNotify(notify func(int, string)) {
+	gm.notify = notify
+}
+
 func (gm *GameManager) CreateGame(playerNum int, gameType string) (Game, error) {
 	game, err := GameTypes[gameType](gm.nextGameID, playerNum)
 	if err != nil {
 		return nil, err
 	}
+	game.SetNotify(gm.notify)
 	gm.games[gm.nextGameID] = game
 	gm.nextGameID += 1
 	return game, nil
@@ -62,12 +68,12 @@ func (gm *GameManager) JoinGame(gameID int, username string) (*Player, error) {
 
 	player, err := gm.createPlayer(username, gameID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to create player: %w", err)
 	}
 
 	err = game.AddPlayer(player.GetPlayerID())
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to add player to game: %w", err)
 	}
 
 	return player, nil
@@ -132,7 +138,7 @@ func (gm *GameManager) AddBot(gameID int) error {
 		return err
 	}
 
-	gm.nextPlayerID++
+	gm.nextPlayerID += 1
 
 	return nil
 }

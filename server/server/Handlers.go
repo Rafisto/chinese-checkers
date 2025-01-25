@@ -217,7 +217,7 @@ func (s *Server) JoinGameHandler(w http.ResponseWriter, r *http.Request, gm *gam
 	if r.Method == http.MethodPost {
 		player, err := gm.JoinGame(game_id_int, username)
 		if err != nil {
-			WriteJSONError(w, http.StatusBadRequest, "Unable to join to the game")
+			WriteJSONError(w, http.StatusBadRequest, fmt.Sprintf("Failed to join game: %v", err))
 			return
 		}
 

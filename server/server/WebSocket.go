@@ -16,6 +16,7 @@ type Message struct {
 
 // Send Message to a single Connection (response to a player query)
 func WSendMessage(conn *websocket.Conn, msg string) {
+	log.Printf("[INFO] WSendMessage %s", msg)
 	message := Message{Message: msg}
 
 	if err := conn.WriteJSON(message); err != nil {

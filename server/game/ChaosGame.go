@@ -3,6 +3,7 @@ package game
 import (
 	"chinese-checkers/lib"
 	"fmt"
+	"log"
 	"slices"
 )
 
@@ -15,6 +16,7 @@ type ChaosGame struct {
 	progress  []int
 	ended     bool
 	bots      map[int]*Bot
+	notify    func(int, string)
 }
 
 func NewChaosGame(gameID, playerNum int) (Game, error) {
@@ -36,6 +38,7 @@ func NewChaosGame(gameID, playerNum int) (Game, error) {
 			turn:      0,
 			progress:  progress,
 			ended:     false,
+			bots:      make(map[int]*Bot),
 		}
 		return game, nil
 	} else {
@@ -69,7 +72,7 @@ func (g *ChaosGame) AddPlayer(playerID int) error {
 	g.players = append(g.players, playerID)
 
 	if len(g.players) == g.playerNum {
-		if _, ok := g.bots[g.players[0]]; ok {
+		if _, ok := g.bots[g.players[g.turn%g.playerNum]]; ok {
 			err := g.botMove()
 			if err != nil {
 				return err
@@ -328,6 +331,10 @@ func (g *ChaosGame) botMove() error {
 		g.SkipTurn(bot.GetBotID())
 	}
 
+	move := MoveToJSON(bot.GetBotID(), x, y, newx, newy)
+	log.Printf("[BOT] (GameID=%d) Notify of move (%d,%d)->(%d,%d)", g.gameID, x, y, newx, newy)
+	g.notify(g.gameID, move)
+
 	return err
 }
 
@@ -358,4 +365,12 @@ func (g *ChaosGame) AddBot(botID int) error {
 	g.bots[botID] = bot
 
 	return nil
+}
+
+func (g *ChaosGame) GetNotify() func(int, string) {
+	return g.notify
+}
+
+func (g *ChaosGame) SetNotify(notify func(int, string)) {
+	g.notify = notify
 }
