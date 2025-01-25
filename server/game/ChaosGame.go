@@ -14,6 +14,7 @@ type ChaosGame struct {
 	turn      int
 	progress  []int
 	ended     bool
+	bots      map[int]*Bot
 }
 
 func NewChaosGame(gameID, playerNum int) (Game, error) {
@@ -57,16 +58,26 @@ func (g *ChaosGame) SetPlayerNum(playerNum int) error {
 }
 
 func (g *ChaosGame) AddPlayer(playerID int) error {
-	if !slices.Contains(g.players, playerID) {
-		if len(g.players) < g.playerNum {
-			g.players = append(g.players, playerID)
-			return nil
-		} else {
-			return fmt.Errorf("lobby full")
-		}
-	} else {
+	if slices.Contains(g.players, playerID) {
 		return fmt.Errorf("player is already in this game")
 	}
+
+	if len(g.players) >= g.playerNum {
+		return fmt.Errorf("lobby full")
+	}
+
+	g.players = append(g.players, playerID)
+
+	if len(g.players) == g.playerNum {
+		if _, ok := g.bots[g.players[0]]; ok {
+			err := g.botMove()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func (g *ChaosGame) GetID() int {
@@ -123,6 +134,9 @@ func (g *ChaosGame) SetEnded(ended bool) {
 
 func (g *ChaosGame) nextTurn() {
 	g.turn = (g.turn + 1) % g.playerNum
+	if _, ok := g.bots[g.players[g.turn%g.playerNum]]; ok {
+		g.botMove()
+	}
 }
 
 func (g *ChaosGame) stepCheck(oldX, oldY, x, y int) bool {
@@ -290,5 +304,58 @@ func (g *ChaosGame) SkipTurn(playerID int) error {
 		return fmt.Errorf("another player's turn")
 	}
 	g.nextTurn()
+	return nil
+}
+
+func (g *ChaosGame) botMove() error {
+	turn := g.players[g.turn%g.playerNum]
+	bot, ok := g.bots[turn]
+	if !ok {
+		return fmt.Errorf("it's not a bot's turn")
+	}
+
+	bot.UpdateBoard(g.board)
+
+	x, y, newx, newy := bot.Move()
+
+	if x == 0 && y == 0 && newx == 0 && newy == 0 {
+		err := g.SkipTurn(bot.GetBotID())
+		return err
+	}
+
+	err := g.Move(bot.GetBotID(), x, y, newx, newy)
+	if err != nil {
+		g.SkipTurn(bot.GetBotID())
+	}
+
+	return err
+}
+
+func (g *ChaosGame) AddBot(botID int) error {
+	var color int
+
+	err := g.AddPlayer(botID)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < len(g.players); i++ {
+		if g.players[i] == botID {
+			color = i + 1
+		}
+	}
+
+	if g.playerNum == 3 {
+		color = 2*color - 1
+	}
+
+	bot := &Bot{
+		botID: botID,
+		color: color,
+		board: g.board,
+	}
+
+	g.bots[botID] = bot
+
 	return nil
 }

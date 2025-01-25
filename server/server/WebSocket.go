@@ -222,6 +222,7 @@ func (s *Server) HandlePlayerMessage(conn *websocket.Conn, gameID, playerID int,
 			log.Printf("[INFO] Sending game state to Game %d (all players)", gameID)
 			errorMessage, _ := json.Marshal(map[string]string{"message": "Skipped Turn"})
 			WBroadcastToGame(gameID, string(errorMessage), s)
+			return
 		}
 
 		log.Printf("[INFO] Game %d Player %d requests a move from (%d, %d) to (%d, %d)", gameID, playerRequest.PlayerID, playerRequest.Start.Col, playerRequest.Start.Row, playerRequest.End.Col, playerRequest.End.Row)
@@ -231,16 +232,17 @@ func (s *Server) HandlePlayerMessage(conn *websocket.Conn, gameID, playerID int,
 			log.Printf("[ERROR] Unable to move: %v", err)
 			errorMessage, _ := json.Marshal(map[string]string{"message": "Invalid Move"})
 			WBroadcastToGame(gameID, string(errorMessage), s)
-		} else {
-			playerRequest.Type = "server"
-			response, err := json.Marshal(playerRequest)
-			if err != nil {
-				log.Printf("[ERROR] Unable to marshal player request: %v", err)
-				return
-			}
-
-			WBroadcastToGame(gameID, string(response), s)
+			return
 		}
+
+		playerRequest.Type = "server"
+		response, err := json.Marshal(playerRequest)
+		if err != nil {
+			log.Printf("[ERROR] Unable to marshal player request: %v", err)
+			return
+		}
+
+		WBroadcastToGame(gameID, string(response), s)
 		return
 	}
 }

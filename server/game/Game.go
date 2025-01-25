@@ -18,4 +18,5 @@ type Game interface {
 	SetEnded(bool)
 	Move(playerID, oldX, oldY, x, y int) error
 	SkipTurn(playerID int) error
+	AddBot(botID int) error
 }

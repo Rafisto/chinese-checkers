@@ -14,6 +14,7 @@ type ClassicGame struct {
 	turn      int
 	progress  []int
 	ended     bool
+	bots      map[int]*Bot
 }
 
 func NewClassicGame(gameID, playerNum int) (Game, error) {
@@ -35,6 +36,7 @@ func NewClassicGame(gameID, playerNum int) (Game, error) {
 			turn:      0,
 			progress:  progress,
 			ended:     false,
+			bots:      make(map[int]*Bot),
 		}
 		return game, nil
 	} else {
@@ -57,16 +59,26 @@ func (g *ClassicGame) SetPlayerNum(playerNum int) error {
 }
 
 func (g *ClassicGame) AddPlayer(playerID int) error {
-	if !slices.Contains(g.players, playerID) {
-		if len(g.players) < g.playerNum {
-			g.players = append(g.players, playerID)
-			return nil
-		} else {
-			return fmt.Errorf("lobby full")
-		}
-	} else {
+	if slices.Contains(g.players, playerID) {
 		return fmt.Errorf("player is already in this game")
 	}
+
+	if len(g.players) >= g.playerNum {
+		return fmt.Errorf("lobby full")
+	}
+
+	g.players = append(g.players, playerID)
+
+	if len(g.players) == g.playerNum {
+		if _, ok := g.bots[g.players[0]]; ok {
+			err := g.botMove()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func (g *ClassicGame) GetID() int {
@@ -123,6 +135,9 @@ func (g *ClassicGame) SetEnded(ended bool) {
 
 func (g *ClassicGame) nextTurn() {
 	g.turn = (g.turn + 1) % g.playerNum
+	if _, ok := g.bots[g.players[g.turn%g.playerNum]]; ok {
+		g.botMove()
+	}
 }
 
 func (g *ClassicGame) stepCheck(oldX, oldY, x, y int) bool {
@@ -256,13 +271,12 @@ func (g *ClassicGame) Move(playerID, oldX, oldY, x, y int) error {
 	currentSquare := g.board.Check(oldX, oldY)
 	newSquare := g.board.Check(x, y)
 
-	if pawn-1 != g.turn {
-		if g.playerNum != 3 {
-			return fmt.Errorf("invalid pawn")
-		}
-		if pawn-1 != 2*g.turn {
-			return fmt.Errorf("invalid pawn")
-		}
+	if pawn-1 != g.turn && g.playerNum != 3 {
+		return fmt.Errorf("invalid pawn")
+	}
+
+	if pawn-1 != 2*g.turn && g.playerNum == 3 {
+		return fmt.Errorf("invalid pawn")
 	}
 
 	if g.board.GetPawns().Check(x, y) != 0 {
@@ -297,5 +311,58 @@ func (g *ClassicGame) SkipTurn(playerID int) error {
 		return fmt.Errorf("another player's turn")
 	}
 	g.nextTurn()
+	return nil
+}
+
+func (g *ClassicGame) botMove() error {
+	turn := g.players[g.turn%g.playerNum]
+	bot, ok := g.bots[turn]
+	if !ok {
+		return fmt.Errorf("it's not a bot's turn")
+	}
+
+	bot.UpdateBoard(g.board)
+
+	x, y, newx, newy := bot.Move()
+
+	if x == 0 && y == 0 && newx == 0 && newy == 0 {
+		err := g.SkipTurn(bot.GetBotID())
+		return err
+	}
+
+	err := g.Move(bot.GetBotID(), x, y, newx, newy)
+	if err != nil {
+		g.SkipTurn(bot.GetBotID())
+	}
+
+	return err
+}
+
+func (g *ClassicGame) AddBot(botID int) error {
+	var color int
+
+	err := g.AddPlayer(botID)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < len(g.players); i++ {
+		if g.players[i] == botID {
+			color = i + 1
+		}
+	}
+
+	if g.playerNum == 3 {
+		color = 2*color - 1
+	}
+
+	bot := &Bot{
+		botID: botID,
+		color: color,
+		board: g.board,
+	}
+
+	g.bots[botID] = bot
+
 	return nil
 }

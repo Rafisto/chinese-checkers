@@ -247,6 +247,12 @@ func (s *Server) AddBotHandler(w http.ResponseWriter, r *http.Request, gm *game.
 		return
 	}
 
+	err = gm.AddBot(game_id_int)
+	if err != nil {
+		WriteJSONError(w, http.StatusBadRequest, fmt.Sprintf("Failure adding bot: %v", err))
+		return
+	}
+
 	WriteJSON(w, http.StatusCreated, map[string]interface{}{"message": fmt.Sprintf("Successfully added the bot to the game %d", game_id_int)})
 }
 

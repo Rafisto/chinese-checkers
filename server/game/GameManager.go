@@ -51,8 +51,8 @@ func (gm *GameManager) GetPlayers() map[int]*Player {
 }
 
 func (gm *GameManager) JoinGame(gameID int, username string) (*Player, error) {
-	game := gm.games[gameID]
-	if game == nil {
+	game, ok := gm.games[gameID]
+	if !ok {
 		return nil, fmt.Errorf("game doesn't exist")
 	}
 
@@ -100,6 +100,10 @@ func (gm *GameManager) LoadGame(name string) error {
 
 	game, err := gm.CreateGame(state.PlayerNum, state.Variant)
 
+	if err != nil {
+		return err
+	}
+
 	game.SetPlayerNum(state.PlayerNum)
 
 	game.SetTurn(state.Turn)
@@ -108,6 +112,27 @@ func (gm *GameManager) LoadGame(name string) error {
 
 	game.GetBoard().SetBoard(state.Board)
 	game.GetBoard().GetPawns().SetPawnsMatrix(state.Pawns)
+
+	return nil
+}
+
+func (gm *GameManager) AddBot(gameID int) error {
+	game, ok := gm.games[gameID]
+
+	if !ok {
+		return fmt.Errorf("game doesn't exist")
+	}
+
+	if game.GetCurrentPlayerNum() == game.GetPlayerNum() {
+		return fmt.Errorf("game full")
+	}
+
+	err := game.AddBot(gm.nextPlayerID)
+	if err != nil {
+		return err
+	}
+
+	gm.nextPlayerID++
 
 	return nil
 }
