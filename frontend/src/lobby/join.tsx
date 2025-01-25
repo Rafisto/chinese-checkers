@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGlobalState } from '../hooks/useGlobalState';
-import { APIJoinGame, APIListGames, ListGameResponse } from '../api/lobby';
+import { APIJoinGame, APIAddBot, APIListGames, ListGameResponse } from '../api/lobby';
 
 type JoinProps = {
     joined: boolean;
@@ -37,6 +37,16 @@ const Join = ({ joined, setJoined }: JoinProps) => {
         }
     }
 
+    const handleAddBot = async(gameID: number) => {
+        try {
+            await APIAddBot(serverAddress, gameID);
+            setAuditLog([...auditLog, `Added bot to game ${gameID}`])
+        }
+        catch (error) {
+            setAuditLog([...auditLog, `Failed to add a bot to game ${gameID}`]);
+        }
+    }
+
     return (
         <div>
             <h2>Join a Game</h2>
@@ -44,6 +54,7 @@ const Join = ({ joined, setJoined }: JoinProps) => {
             <ul>
                 {games.sort((a, b) => (a.id > b.id ? 1 : -1)).map((game, index) => (
                     <li key={index} style={{ marginBottom: "3px" }}>
+                        <button onClick={() => handleAddBot(game.id)}  style={{ padding: "5px 10px", marginInline: "5px" }}>Add Bot</button>
                         <button onClick={() => handleJoinGame(game.id, game.variant)} style={{ padding: "5px 10px", marginInline: "5px" }}>Join</button>
                         <span>GameID = {game.id} ({game.variant}), {game.currentPlayers}/{game.maxPlayers} Players</span>
                     </li>

@@ -227,3 +227,25 @@ func (s *Server) JoinGameHandler(w http.ResponseWriter, r *http.Request, gm *gam
 
 	WriteJSONError(w, http.StatusMethodNotAllowed, "Method not allowed")
 }
+
+// AddBotHandler godoc
+//
+// @Summary	Add a bot to the game
+// @Tags Game
+// @Accept json
+// @Produce json
+// @Param game_id path string true "Game ID"
+// @Success 201 {object} Response "Successfully added the bot"
+// @Failure 400 {object} ErrorResponse "Bad request, missing fields or invalid data"
+// @Router /games/{game_id}/bot [post].
+func (s *Server) AddBotHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
+	game_id := r.PathValue("game_id")
+
+	game_id_int, err := strconv.Atoi(game_id)
+	if err != nil {
+		WriteJSONError(w, http.StatusBadRequest, "GameID must be an integer.")
+		return
+	}
+
+	WriteJSON(w, http.StatusCreated, map[string]interface{}{"message": fmt.Sprintf("Successfully added the bot to the game %d", game_id_int)})
+}

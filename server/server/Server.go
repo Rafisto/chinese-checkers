@@ -58,6 +58,10 @@ func (s *Server) createHandlers(mux *http.ServeMux) {
 		s.JoinGameHandler(w, r, s.GameManager)
 	})
 
+	mux.HandleFunc("/games/{game_id}/bot", func(w http.ResponseWriter, r *http.Request) {
+		s.AddBotHandler(w, r, s.GameManager)
+	})
+
 	mux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		s.HandleWebSocket(w, r)
 	})
