@@ -6,4 +6,5 @@ type Pawns interface {
 	Check(x, y int) int
 	GetPawns() map[Point]int
 	GetPawnsMatrix() [][]int
+	SetPawnsMatrix(pawns [][]int)
 }

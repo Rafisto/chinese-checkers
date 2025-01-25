@@ -97,6 +97,10 @@ func (g *ChaosGame) GetTurn() int {
 	return g.turn
 }
 
+func (g *ChaosGame) SetTurn(turn int) {
+	g.turn = turn
+}
+
 func (g *ChaosGame) GetPlayerTurn() int {
 	return g.players[g.turn%g.playerNum]
 }
@@ -105,8 +109,16 @@ func (g *ChaosGame) GetProgress() []int {
 	return g.progress
 }
 
+func (g *ChaosGame) SetProgress(progress []int) {
+	g.progress = progress
+}
+
 func (g *ChaosGame) GetEnded() bool {
 	return g.ended
+}
+
+func (g *ChaosGame) SetEnded(ended bool) {
+	g.ended = ended
 }
 
 func (g *ChaosGame) nextTurn() {

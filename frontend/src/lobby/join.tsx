@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGlobalState } from '../hooks/useGlobalState';
 import { APIJoinGame, APIAddBot, APIListGames, ListGameResponse } from '../api/lobby';
+import { APILoadGame } from '../api/save';
 
 type JoinProps = {
     joined: boolean;
@@ -10,6 +11,7 @@ type JoinProps = {
 const Join = ({ joined, setJoined }: JoinProps) => {
     const { serverAddress, lobbyState, setLobbyState, auditLog, setAuditLog } = useGlobalState();
     const [games, setGames] = useState<ListGameResponse[]>([]);
+    const [loadName, setLoadName] = useState<string>("");
 
     useEffect(() => {
         // polling via REST
@@ -47,8 +49,23 @@ const Join = ({ joined, setJoined }: JoinProps) => {
         }
     }
 
+    const handleLoadGame = async () => {
+        try {
+            await APILoadGame(serverAddress, loadName);
+            setAuditLog([...auditLog, `Loaded game ${loadName}`]);
+        }
+        catch (error) {
+            console.error(error);
+            setAuditLog([...auditLog, `Failed to load game ${loadName}`]);
+        }
+    }
+
     return (
         <div>
+            <h2>Load a Game</h2>
+            <p>Enter game name</p>
+            <input type="text" value={loadName} onChange={(e) => setLoadName(e.currentTarget.value)}></input>
+            <button onClick={() => handleLoadGame()}>Load</button>
             <h2>Join a Game</h2>
             {(games.length == 0) && <label>No active games on the server</label>}
             <ul>

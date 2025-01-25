@@ -97,6 +97,10 @@ func (g *ClassicGame) GetTurn() int {
 	return g.turn
 }
 
+func (g *ClassicGame) SetTurn(turn int) {
+	g.turn = turn
+}
+
 func (g *ClassicGame) GetPlayerTurn() int {
 	return g.players[g.turn%g.playerNum]
 }
@@ -105,8 +109,16 @@ func (g *ClassicGame) GetProgress() []int {
 	return g.progress
 }
 
+func (g *ClassicGame) SetProgress(progress []int) {
+	g.progress = progress
+}
+
 func (g *ClassicGame) GetEnded() bool {
 	return g.ended
+}
+
+func (g *ClassicGame) SetEnded(ended bool) {
+	g.ended = ended
 }
 
 func (g *ClassicGame) nextTurn() {

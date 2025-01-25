@@ -1,6 +1,7 @@
 package game
 
 import (
+	"chinese-checkers/save"
 	"fmt"
 )
 
@@ -70,4 +71,43 @@ func (gm *GameManager) JoinGame(gameID int, username string) (*Player, error) {
 	}
 
 	return player, nil
+}
+
+func (gm *GameManager) SaveGame(gameID int, name string) error {
+	game := gm.games[gameID]
+	if game == nil {
+		return fmt.Errorf("game doesn't exist")
+	}
+
+	state := save.GameState{
+		Turn:      game.GetTurn(),
+		Progress:  game.GetProgress(),
+		Variant:   game.GetVariant(),
+		PlayerNum: game.GetPlayerNum(),
+		Ended:     game.GetEnded(),
+		Board:     game.GetBoard().GetBoard(),
+		Pawns:     game.GetBoard().GetPawns().GetPawnsMatrix(),
+	}
+
+	return save.SaveGameState(state, name)
+}
+
+func (gm *GameManager) LoadGame(name string) error {
+	state, err := save.LoadGameState(name)
+	if err != nil {
+		return fmt.Errorf("failed to load game state: %w", err)
+	}
+
+	game, err := gm.CreateGame(state.PlayerNum, state.Variant)
+
+	game.SetPlayerNum(state.PlayerNum)
+
+	game.SetTurn(state.Turn)
+	game.SetProgress(state.Progress)
+	game.SetEnded(state.Ended)
+
+	game.GetBoard().SetBoard(state.Board)
+	game.GetBoard().GetPawns().SetPawnsMatrix(state.Pawns)
+
+	return nil
 }

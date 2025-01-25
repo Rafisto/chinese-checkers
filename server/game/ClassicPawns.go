@@ -87,6 +87,14 @@ func (p *ClassicPawns) GetPawnsMatrix() [][]int {
 	return pawnsArr
 }
 
+func (p *ClassicPawns) SetPawnsMatrix(pawns [][]int) {
+	for i := 0; i < 17; i++ {
+		for j := 0; j < 25; j++ {
+			p.pawns[Point{x: j, y: i}] = pawns[i][j]
+		}
+	}
+}
+
 func (p *ClassicPawns) fill1(n int) {
 	p.pawns[Point{x: 12, y: 0}] = n
 	p.pawns[Point{x: 11, y: 1}] = n

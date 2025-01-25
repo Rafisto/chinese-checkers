@@ -105,6 +105,10 @@ func (b *ClassicBoard) GetBoard() [][]int {
 	return b.board
 }
 
+func (b *ClassicBoard) SetBoard(board [][]int) {
+	b.board = board
+}
+
 func (b *ClassicBoard) GetPawns() Pawns {
 	return b.pawns
 }
