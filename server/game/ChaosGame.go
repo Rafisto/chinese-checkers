@@ -73,6 +73,15 @@ func (g *ChaosGame) AddPlayer(playerID int) error {
 	g.players = append(g.players, playerID)
 
 	if len(g.players) == g.playerNum {
+		log.Printf("[BOT] (GameID=%d) Notify of full lobby", g.gameID)
+
+		msg := map[string]interface{}{
+			"message": "Skipped Turn",
+		}
+
+		jsonData, _ := json.Marshal(msg)
+		g.notify(g.gameID, string(jsonData))
+
 		if _, ok := g.bots[g.players[g.turn%g.playerNum]]; ok {
 			err := g.botMove()
 			if err != nil {
@@ -142,7 +151,9 @@ func (g *ChaosGame) SetEnded(ended bool) {
 func (g *ChaosGame) nextTurn() {
 	g.turn = (g.turn + 1) % g.playerNum
 	if _, ok := g.bots[g.players[g.turn%g.playerNum]]; ok {
-		g.botMove()
+		go (func() {
+			g.botMove()
+		})()
 	}
 }
 
