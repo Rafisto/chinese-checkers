@@ -322,6 +322,7 @@ func (g *ClassicGame) SkipTurn(playerID int) error {
 }
 
 func (g *ClassicGame) botMove() error {
+	log.Printf("bot should move")
 	turn := g.players[g.turn%g.playerNum]
 	bot, ok := g.bots[turn]
 	if !ok {
@@ -353,6 +354,7 @@ func (g *ClassicGame) AddBot(botID int) error {
 	var color int
 
 	err := g.AddPlayer(botID)
+	log.Printf("%v: %v", botID, err)
 	if err != nil {
 		return err
 	}
@@ -374,6 +376,16 @@ func (g *ClassicGame) AddBot(botID int) error {
 	}
 
 	g.bots[botID] = bot
+
+	if len(g.players) == g.playerNum {
+		_, ok := g.bots[g.players[g.turn%g.playerNum]]
+		if ok {
+			err := g.botMove()
+			if err != nil {
+				return err
+			}
+		}
+	}
 
 	return nil
 }

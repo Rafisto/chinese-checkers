@@ -116,6 +116,9 @@ func (g *ChaosGame) SetTurn(turn int) {
 }
 
 func (g *ChaosGame) GetPlayerTurn() int {
+	if len(g.players) != g.playerNum {
+		return -1
+	}
 	return g.players[g.turn%g.playerNum]
 }
 
@@ -363,6 +366,16 @@ func (g *ChaosGame) AddBot(botID int) error {
 	}
 
 	g.bots[botID] = bot
+
+	if len(g.players) == g.playerNum {
+		_, ok := g.bots[g.players[g.turn%g.playerNum]]
+		if ok {
+			err := g.botMove()
+			if err != nil {
+				return err
+			}
+		}
+	}
 
 	return nil
 }
