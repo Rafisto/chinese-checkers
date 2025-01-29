@@ -4,7 +4,7 @@ import (
 	"testing"
 )
 
-var game, err = NewClassicGame(0, 6)
+var game, err = NewClassicGame(0, 2)
 
 func TestGameCreation(t *testing.T) {
 	if err != nil {
@@ -30,6 +30,13 @@ func TestAddPlayer(t *testing.T) {
 	}
 }
 
+func TestAddPlayerError(t *testing.T) {
+	err = game.AddPlayer(2)
+	if err == nil {
+		t.Fatalf(`game.AddPlayer(2) = nil, want error (game full)`)
+	}
+}
+
 func TestPlayerNumSetError(t *testing.T) {
 	err = game.SetPlayerNum(0)
 	if err == nil {
@@ -50,20 +57,11 @@ func TestPlayerNumSetError(t *testing.T) {
 }
 
 func TestPlayerNumSetGet(t *testing.T) {
-	err = game.SetPlayerNum(2)
-	if err != nil {
-		t.Fatalf(`game.SetPlayerNum(2) = %v, want nil`, err)
-	}
-	num := game.GetPlayerNum()
-	if num != 2 {
-		t.Fatalf(`game.GetPlayerNum() = %v, want 2`, num)
-	}
-
 	err = game.SetPlayerNum(3)
 	if err != nil {
 		t.Fatalf(`game.SetPlayerNum(3) = %v, want nil`, err)
 	}
-	num = game.GetPlayerNum()
+	num := game.GetPlayerNum()
 	if num != 3 {
 		t.Fatalf(`game.GetPlayerNum() = %v, want 3`, num)
 	}
@@ -84,6 +82,15 @@ func TestPlayerNumSetGet(t *testing.T) {
 	num = game.GetPlayerNum()
 	if num != 6 {
 		t.Fatalf(`game.GetPlayerNum() = %v, want 6`, num)
+	}
+
+	err = game.SetPlayerNum(2)
+	if err != nil {
+		t.Fatalf(`game.SetPlayerNum(2) = %v, want nil`, err)
+	}
+	num = game.GetPlayerNum()
+	if num != 2 {
+		t.Fatalf(`game.GetPlayerNum() = %v, want 2`, num)
 	}
 }
 
@@ -120,12 +127,12 @@ func TestMoveError(t *testing.T) {
 }
 
 func TestMove(t *testing.T) {
-	err = game.Move(0, 11, 3, 10, 4)
+	err = game.Move(0, 10, 4, 9, 5)
 	if err != nil {
 		t.Fatalf(`game.Move() = %v, want nil`, err)
 	}
 
-	err = game.Move(1, 12, 14, 10, 12)
+	err = game.Move(1, 11, 13, 9, 11)
 	if err != nil {
 		t.Fatalf(`game.Move() = %v, want nil`, err)
 	}
