@@ -12,6 +12,7 @@ const Join = ({ joined, setJoined }: JoinProps) => {
     const { serverAddress, lobbyState, setLobbyState, auditLog, setAuditLog } = useGlobalState();
     const [games, setGames] = useState<ListGameResponse[]>([]);
     const [loadName, setLoadName] = useState<string>("");
+    const [successLoad, setSuccessLoad] = useState<boolean>(false);
 
     useEffect(() => {
         // polling via REST
@@ -51,12 +52,15 @@ const Join = ({ joined, setJoined }: JoinProps) => {
 
     const handleLoadGame = async () => {
         try {
+            setSuccessLoad(false);
             await APILoadGame(serverAddress, loadName);
             setAuditLog([...auditLog, `Loaded game ${loadName}`]);
+            setSuccessLoad(true);
         }
         catch (error) {
             console.error(error);
             setAuditLog([...auditLog, `Failed to load game ${loadName}`]);
+            setSuccessLoad(false);
         }
     }
 
@@ -66,6 +70,7 @@ const Join = ({ joined, setJoined }: JoinProps) => {
             <p>Enter game name</p>
             <input type="text" value={loadName} onChange={(e) => setLoadName(e.currentTarget.value)}></input>
             <button onClick={() => handleLoadGame()}>Load</button>
+            {successLoad ? <p color="lime">Game loaded successfully!</p> : null}
             <h2>Join a Game</h2>
             {(games.length == 0) && <label>No active games on the server</label>}
             <ul>

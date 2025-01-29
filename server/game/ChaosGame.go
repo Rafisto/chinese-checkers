@@ -2,6 +2,7 @@ package game
 
 import (
 	"chinese-checkers/lib"
+	"encoding/json"
 	"fmt"
 	"log"
 	"slices"
@@ -368,6 +369,15 @@ func (g *ChaosGame) AddBot(botID int) error {
 	g.bots[botID] = bot
 
 	if len(g.players) == g.playerNum {
+		log.Printf("[BOT] (GameID=%d) Notify of full lobby", g.gameID)
+
+		msg := map[string]interface{}{
+			"message": "Skipped Turn",
+		}
+
+		jsonData, _ := json.Marshal(msg)
+		g.notify(g.gameID, string(jsonData))
+
 		_, ok := g.bots[g.players[g.turn%g.playerNum]]
 		if ok {
 			err := g.botMove()
