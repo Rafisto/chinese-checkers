@@ -5,6 +5,7 @@ import "testing"
 var gm = NewGameManager()
 
 func TestCreateGame(t *testing.T) {
+	gm.RegisterNotify(mocknotify)
 	_, err := gm.CreateGame(2, "classic")
 	if err != nil {
 		t.Fatalf(`gm.CreateGame(2, "classic") = _, %v, want nil`, err)

@@ -6,7 +6,12 @@ import (
 
 var game, err = NewClassicGame(0, 2)
 
+func mocknotify(i int, s string) {
+	return
+}
+
 func TestGameCreation(t *testing.T) {
+	game.SetNotify(mocknotify)
 	if err != nil {
 		t.Fatalf(`NewGame(0, 6, nil) = _, %v, want _, nil`, err)
 	}
