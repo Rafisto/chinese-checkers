@@ -46,7 +46,7 @@ const Join = ({ joined, setJoined }: JoinProps) => {
             setAuditLog([...auditLog, `Added bot to game ${gameID}`])
         }
         catch (error) {
-            setAuditLog([...auditLog, `Failed to add a bot to game ${gameID}`]);
+            setAuditLog([...auditLog, `Failed to add a bot to game ${gameID}, ${error}`]);
         }
     }
 
