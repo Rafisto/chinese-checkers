@@ -10,6 +10,7 @@ const BoardColors: Record<string, string> = {
 }
 
 const PlayerColors: Record<string, string> = {
+    '-1': 'red',
     '0': 'transparent',
     '1': 'red',
     '2': 'blue',
@@ -20,6 +21,7 @@ const PlayerColors: Record<string, string> = {
 }
 
 const ThreePlayerColors: Record<string, string> = {
+    '-1': 'red',
     '0': 'transparent',
     '1': 'red',
     '2': 'lime',

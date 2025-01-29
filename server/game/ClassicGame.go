@@ -116,6 +116,9 @@ func (g *ClassicGame) SetTurn(turn int) {
 }
 
 func (g *ClassicGame) GetPlayerTurn() int {
+	if len(g.players) != g.playerNum {
+		return -1
+	}
 	return g.players[g.turn%g.playerNum]
 }
 
