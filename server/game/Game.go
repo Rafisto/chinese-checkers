@@ -13,6 +13,12 @@ type Game interface {
 	GetProgress() []int
 	GetVariant() string
 	GetEnded() bool
+	GetNotify() func(int, string)
+	SetNotify(func(int, string))
+	SetTurn(int)
+	SetProgress([]int)
+	SetEnded(bool)
 	Move(playerID, oldX, oldY, x, y int) error
 	SkipTurn(playerID int) error
+	AddBot(botID int) error
 }

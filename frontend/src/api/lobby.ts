@@ -60,5 +60,16 @@ const APIJoinGame = async (api_url: string, gameID: number, playerName: string) 
     }
 }
 
-export { APICreateGame, APIListGames, APIJoinGame };
+const APIAddBot = async (api_url: string, gameID: number) => {
+    const response = await axios.post(`${api_url}/games/${gameID}/bot`)
+
+    if (response.status !== 201) {
+        throw new Error("Unable to create the bot");
+    }
+    else {
+        return
+    }
+}
+
+export { APICreateGame, APIListGames, APIJoinGame, APIAddBot };
 export type { BasicResponse, ListGameResponse };

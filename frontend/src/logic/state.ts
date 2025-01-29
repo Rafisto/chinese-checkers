@@ -25,6 +25,10 @@ const jumpMoves = [
 const PerformMove = (state: number[][], start: Point, end: Point): number[][] => {
     const newState = state.map((row) => row.slice());
 
+    if (state[start.row][start.col] === 0) {
+        return state;
+    }
+
     newState[end.row][end.col] = newState[start.row][start.col];
     newState[start.row][start.col] = 0;
 

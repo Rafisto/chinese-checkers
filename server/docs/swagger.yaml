@@ -40,6 +40,11 @@ definitions:
       message:
         type: string
     type: object
+  server.SaveGameRequest:
+    properties:
+      name:
+        type: string
+    type: object
 externalDocs:
   description: OpenAPI
   url: https://swagger.io/resources/open-api/
@@ -99,6 +104,30 @@ paths:
       summary: Create a new game provided its initial parameters
       tags:
       - Game
+  /games/{game_id}/bot:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Game ID
+        in: path
+        name: game_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Successfully added the bot
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad request, missing fields or invalid data
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Add a bot to the game
+      tags:
+      - Game
   /games/{game_id}/join:
     post:
       consumes:
@@ -129,6 +158,36 @@ paths:
       summary: Join a game by its ID, provided the username
       tags:
       - Game
+  /games/{game_id}/save:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Game ID
+        in: path
+        name: game_id
+        required: true
+        type: string
+      - description: Game name
+        in: body
+        name: username
+        required: true
+        schema:
+          $ref: '#/definitions/server.SaveGameRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully saved the game
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad request, missing fields or invalid data
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Save the game
+      tags:
+      - Game
   /games/{id}:
     get:
       consumes:
@@ -151,6 +210,30 @@ paths:
           schema:
             $ref: '#/definitions/server.ErrorResponse'
       summary: Get a game by its ID
+      tags:
+      - Game
+  /load/{name}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: Game name
+        in: path
+        name: name
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Successfully loaded the game
+          schema:
+            $ref: '#/definitions/server.Response'
+        "400":
+          description: Bad request, missing fields or invalid data
+          schema:
+            $ref: '#/definitions/server.ErrorResponse'
+      summary: Load the game
       tags:
       - Game
   /ws:

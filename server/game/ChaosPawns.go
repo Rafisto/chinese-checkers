@@ -143,3 +143,11 @@ func (p *ChaosPawns) GetPawnsMatrix() [][]int {
 	}
 	return pawnsArr
 }
+
+func (p *ChaosPawns) SetPawnsMatrix(pawns [][]int) {
+	for i := 0; i < 17; i++ {
+		for j := 0; j < 25; j++ {
+			p.pawns[Point{x: j, y: i}] = pawns[i][j]
+		}
+	}
+}

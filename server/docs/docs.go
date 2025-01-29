@@ -88,6 +88,43 @@ const docTemplate = `{
                 }
             }
         },
+        "/games/{game_id}/bot": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Add a bot to the game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "game_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Successfully added the bot",
+                        "schema": {
+                            "$ref": "#/definitions/server.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, missing fields or invalid data",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/games/{game_id}/join": {
             "post": {
                 "consumes": [
@@ -134,6 +171,52 @@ const docTemplate = `{
                 }
             }
         },
+        "/games/{game_id}/save": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Save the game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game ID",
+                        "name": "game_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Game name",
+                        "name": "username",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/server.SaveGameRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully saved the game",
+                        "schema": {
+                            "$ref": "#/definitions/server.Response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, missing fields or invalid data",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/games/{id}": {
             "get": {
                 "consumes": [
@@ -160,6 +243,43 @@ const docTemplate = `{
                         "description": "Scuccessfully received the desired game",
                         "schema": {
                             "$ref": "#/definitions/server.GameResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad request, missing fields or invalid data",
+                        "schema": {
+                            "$ref": "#/definitions/server.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/load/{name}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Game"
+                ],
+                "summary": "Load the game",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Game name",
+                        "name": "name",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successfully loaded the game",
+                        "schema": {
+                            "$ref": "#/definitions/server.Response"
                         }
                     },
                     "400": {
@@ -276,6 +396,14 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "server.SaveGameRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
                     "type": "string"
                 }
             }

@@ -5,5 +5,6 @@ type Board interface {
 	Check(x, y int) int
 	GetPlayerNum() int
 	GetBoard() [][]int
+	SetBoard(board [][]int)
 	GetPawns() Pawns
 }

@@ -2,7 +2,9 @@ package game
 
 import (
 	"chinese-checkers/lib"
+	"encoding/json"
 	"fmt"
+	"log"
 	"slices"
 )
 
@@ -14,6 +16,8 @@ type ClassicGame struct {
 	turn      int
 	progress  []int
 	ended     bool
+	bots      map[int]*Bot
+	notify    func(int, string)
 }
 
 func NewClassicGame(gameID, playerNum int) (Game, error) {
@@ -35,6 +39,7 @@ func NewClassicGame(gameID, playerNum int) (Game, error) {
 			turn:      0,
 			progress:  progress,
 			ended:     false,
+			bots:      make(map[int]*Bot),
 		}
 		return game, nil
 	} else {
@@ -57,16 +62,35 @@ func (g *ClassicGame) SetPlayerNum(playerNum int) error {
 }
 
 func (g *ClassicGame) AddPlayer(playerID int) error {
-	if !slices.Contains(g.players, playerID) {
-		if len(g.players) < g.playerNum {
-			g.players = append(g.players, playerID)
-			return nil
-		} else {
-			return fmt.Errorf("lobby full")
-		}
-	} else {
+	if slices.Contains(g.players, playerID) {
 		return fmt.Errorf("player is already in this game")
 	}
+
+	if len(g.players) >= g.playerNum {
+		return fmt.Errorf("lobby full")
+	}
+
+	g.players = append(g.players, playerID)
+
+	if len(g.players) == g.playerNum {
+		log.Printf("[BOT] (GameID=%d) Notify of full lobby", g.gameID)
+
+		msg := map[string]interface{}{
+			"message": "Skipped Turn",
+		}
+
+		jsonData, _ := json.Marshal(msg)
+		g.notify(g.gameID, string(jsonData))
+
+		if _, ok := g.bots[g.players[g.turn%g.playerNum]]; ok {
+			err := g.botMove()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func (g *ClassicGame) GetID() int {
@@ -97,7 +121,14 @@ func (g *ClassicGame) GetTurn() int {
 	return g.turn
 }
 
+func (g *ClassicGame) SetTurn(turn int) {
+	g.turn = turn
+}
+
 func (g *ClassicGame) GetPlayerTurn() int {
+	if len(g.players) != g.playerNum {
+		return -1
+	}
 	return g.players[g.turn%g.playerNum]
 }
 
@@ -105,12 +136,25 @@ func (g *ClassicGame) GetProgress() []int {
 	return g.progress
 }
 
+func (g *ClassicGame) SetProgress(progress []int) {
+	g.progress = progress
+}
+
 func (g *ClassicGame) GetEnded() bool {
 	return g.ended
 }
 
+func (g *ClassicGame) SetEnded(ended bool) {
+	g.ended = ended
+}
+
 func (g *ClassicGame) nextTurn() {
 	g.turn = (g.turn + 1) % g.playerNum
+	if _, ok := g.bots[g.players[g.turn%g.playerNum]]; ok {
+		go (func() {
+			g.botMove()
+		})()
+	}
 }
 
 func (g *ClassicGame) stepCheck(oldX, oldY, x, y int) bool {
@@ -244,13 +288,12 @@ func (g *ClassicGame) Move(playerID, oldX, oldY, x, y int) error {
 	currentSquare := g.board.Check(oldX, oldY)
 	newSquare := g.board.Check(x, y)
 
-	if pawn-1 != g.turn {
-		if g.playerNum != 3 {
-			return fmt.Errorf("invalid pawn")
-		}
-		if pawn-1 != 2*g.turn {
-			return fmt.Errorf("invalid pawn")
-		}
+	if pawn-1 != g.turn && g.playerNum != 3 {
+		return fmt.Errorf("invalid pawn")
+	}
+
+	if pawn-1 != 2*g.turn && g.playerNum == 3 {
+		return fmt.Errorf("invalid pawn")
 	}
 
 	if g.board.GetPawns().Check(x, y) != 0 {
@@ -286,4 +329,81 @@ func (g *ClassicGame) SkipTurn(playerID int) error {
 	}
 	g.nextTurn()
 	return nil
+}
+
+func (g *ClassicGame) botMove() error {
+	log.Printf("bot should move")
+	turn := g.players[g.turn%g.playerNum]
+	bot, ok := g.bots[turn]
+	if !ok {
+		return fmt.Errorf("it's not a bot's turn")
+	}
+
+	bot.UpdateBoard(g.board)
+
+	x, y, newx, newy := bot.Move()
+
+	if x == 0 && y == 0 && newx == 0 && newy == 0 {
+		err := g.SkipTurn(bot.GetBotID())
+		return err
+	}
+
+	err := g.Move(bot.GetBotID(), x, y, newx, newy)
+	if err != nil {
+		g.SkipTurn(bot.GetBotID())
+	}
+
+	move := MoveToJSON(bot.GetBotID(), x, y, newx, newy)
+	log.Printf("[BOT] (GameID=%d) Notify of move (%d,%d)->(%d,%d)", g.gameID, x, y, newx, newy)
+	g.notify(g.gameID, move)
+
+	return err
+}
+
+func (g *ClassicGame) AddBot(botID int) error {
+	var color int
+
+	err := g.AddPlayer(botID)
+	log.Printf("%v: %v", botID, err)
+	if err != nil {
+		return err
+	}
+
+	for i := 0; i < len(g.players); i++ {
+		if g.players[i] == botID {
+			color = i + 1
+		}
+	}
+
+	if g.playerNum == 3 {
+		color = 2*color - 1
+	}
+
+	bot := &Bot{
+		botID: botID,
+		color: color,
+		board: g.board,
+	}
+
+	g.bots[botID] = bot
+
+	if len(g.players) == g.playerNum {
+		_, ok := g.bots[g.players[g.turn%g.playerNum]]
+		if ok {
+			err := g.botMove()
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (g *ClassicGame) GetNotify() func(int, string) {
+	return g.notify
+}
+
+func (g *ClassicGame) SetNotify(notify func(int, string)) {
+	g.notify = notify
 }

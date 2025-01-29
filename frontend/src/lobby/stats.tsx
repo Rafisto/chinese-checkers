@@ -1,9 +1,27 @@
+import { useState } from "react";
 import { handleSkipTurn } from "../api/websocket";
 import { useGlobalState } from "../hooks/useGlobalState";
 import { getPlayerColor, getPlayerTurnColor } from "../logic/colors";
+import { APISaveGame } from "../api/save";
 
 const Stats = () => {
-    const { gameState, lobbyState, ws, setAuditLog } = useGlobalState();
+    const { serverAddress, gameState, lobbyState, ws, auditLog, setAuditLog } = useGlobalState();
+    const [saveName, setSaveName] = useState<string>("");
+    const [success, setSuccess] = useState<boolean>(false);
+
+    const handleSaveGame = async () => {
+        try {
+            setSuccess(false);
+            await APISaveGame(serverAddress, lobbyState.gameID, saveName);
+            setAuditLog([...auditLog, `Saved game ${lobbyState.gameID} as ${saveName}`]);
+            setSuccess(true);
+        }
+        catch (error) {
+            console.error(error);
+            setAuditLog([...auditLog, `Failed to saved game ${saveName}`]);
+            setSuccess(false);
+        }
+    }
 
     return (
         <div>
@@ -24,6 +42,10 @@ const Stats = () => {
                     {gameState.color}
                 </div>
             </div>
+            <p>Enter game name</p>
+            <input type="text" value={saveName} onChange={(e) => setSaveName(e.currentTarget.value)}></input>
+            <button onClick={() => handleSaveGame()}>Save as '{saveName}'</button>
+            {success ? <p color="lime">Game saved successfully!</p> : null}
             <hr />
             {!gameState.ended ?
                 <>

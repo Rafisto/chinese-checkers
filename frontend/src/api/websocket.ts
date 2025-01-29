@@ -39,6 +39,7 @@ const handleWebSocketMessages = (ws: WebSocket | null, setAuditLog: React.Dispat
         if (message.type === "server" && message.action === "move") {
             setGameState((prevGameState: GameState) => ({ ...prevGameState, state: PerformMove(prevGameState.state, message.start, message.end) }));
             sendStateRequest(ws, setAuditLog);
+            sendPawnsRequest(ws, setAuditLog);
         }
 
         if (message.message == "Skipped Turn" && message.type === undefined) {

@@ -217,11 +217,109 @@ func (s *Server) JoinGameHandler(w http.ResponseWriter, r *http.Request, gm *gam
 	if r.Method == http.MethodPost {
 		player, err := gm.JoinGame(game_id_int, username)
 		if err != nil {
-			WriteJSONError(w, http.StatusBadRequest, "Unable to join to the game")
+			WriteJSONError(w, http.StatusBadRequest, fmt.Sprintf("Failed to join game: %v", err))
 			return
 		}
 
 		WriteJSON(w, http.StatusCreated, map[string]interface{}{"message": "Successfully joined the game", "id": player.GetPlayerID()})
+		return
+	}
+
+	WriteJSONError(w, http.StatusMethodNotAllowed, "Method not allowed")
+}
+
+// AddBotHandler godoc
+//
+// @Summary	Add a bot to the game
+// @Tags Game
+// @Accept json
+// @Produce json
+// @Param game_id path string true "Game ID"
+// @Success 201 {object} Response "Successfully added the bot"
+// @Failure 400 {object} ErrorResponse "Bad request, missing fields or invalid data"
+// @Router /games/{game_id}/bot [post].
+func (s *Server) AddBotHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
+	game_id := r.PathValue("game_id")
+
+	game_id_int, err := strconv.Atoi(game_id)
+	if err != nil {
+		WriteJSONError(w, http.StatusBadRequest, "GameID must be an integer.")
+		return
+	}
+
+	err = gm.AddBot(game_id_int)
+	if err != nil {
+		WriteJSONError(w, http.StatusBadRequest, fmt.Sprintf("Failure adding bot: %v", err))
+		return
+	}
+
+	WriteJSON(w, http.StatusCreated, map[string]interface{}{"message": fmt.Sprintf("Successfully added the bot to the game %d", game_id_int)})
+}
+
+type SaveGameRequest struct {
+	Name string `json:"name"`
+}
+
+// SaveGameHandler godoc
+//
+// @Summary	Save the game
+// @Tags Game
+// @Accept json
+// @Produce json
+// @Param game_id path string true "Game ID"
+// @Param username body SaveGameRequest	true "Game name"
+// @Success 200 {object} Response "Successfully saved the game"
+// @Failure 400 {object} ErrorResponse "Bad request, missing fields or invalid data"
+// @Router /games/{game_id}/save [post].
+func (s *Server) SaveGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
+	game_id := r.PathValue("game_id")
+
+	game_id_int, err := strconv.Atoi(game_id)
+	if err != nil {
+		WriteJSONError(w, http.StatusBadRequest, "GameID must be an integer.")
+		return
+	}
+
+	var req SaveGameRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		WriteJSONError(w, http.StatusBadRequest, fmt.Sprintf("Failed to decode request: %v", err))
+		return
+	}
+
+	if req.Name == "" {
+		WriteJSONError(w, http.StatusBadRequest, "Name must not be empty")
+	}
+
+	err = gm.SaveGame(game_id_int, req.Name)
+	if err != nil {
+		WriteJSONError(w, http.StatusBadRequest, "Failed to save the game")
+		return
+	}
+
+	WriteJSON(w, http.StatusCreated, map[string]interface{}{"message": fmt.Sprintf("Successfully saved the game %d", game_id_int)})
+}
+
+// LoadGameHandler godoc
+//
+// @Summary	Load the game
+// @Tags Game
+// @Accept json
+// @Produce json
+// @Param name path string true "Game name"
+// @Success 200 {object} Response "Successfully loaded the game"
+// @Failure 400 {object} ErrorResponse "Bad request, missing fields or invalid data"
+// @Router /load/{name} [get].
+func (s *Server) LoadGameHandler(w http.ResponseWriter, r *http.Request, gm *game.GameManager) {
+	name := r.PathValue("name")
+
+	if r.Method == http.MethodGet {
+		err := gm.LoadGame(name)
+		if err != nil {
+			WriteJSONError(w, http.StatusBadRequest, "Failed to load the game")
+			return
+		}
+
+		WriteJSON(w, http.StatusOK, map[string]interface{}{"message": fmt.Sprintf("Successfully loaded the game %s", name)})
 		return
 	}
 

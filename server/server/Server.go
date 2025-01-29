@@ -31,10 +31,16 @@ type Server struct {
 // NewServer godoc
 // @Summary Create a new HTTP/WebSocket Server
 func NewServer() *Server {
-	return &Server{
+	server := Server{
 		GameManager:     game.NewGameManager(),
 		GameConnections: make(map[int][]GameConnection),
 	}
+
+	server.GameManager.RegisterNotify(func(i int, s string) {
+		WBroadcastToGame(i, s, &server)
+	})
+
+	return &server
 }
 
 // createHandlers godoc
@@ -56,6 +62,18 @@ func (s *Server) createHandlers(mux *http.ServeMux) {
 
 	mux.HandleFunc("/games/{game_id}/join", func(w http.ResponseWriter, r *http.Request) {
 		s.JoinGameHandler(w, r, s.GameManager)
+	})
+
+	mux.HandleFunc("/games/{game_id}/bot", func(w http.ResponseWriter, r *http.Request) {
+		s.AddBotHandler(w, r, s.GameManager)
+	})
+
+	mux.HandleFunc("/games/{game_id}/save", func(w http.ResponseWriter, r *http.Request) {
+		s.SaveGameHandler(w, r, s.GameManager)
+	})
+
+	mux.HandleFunc("/load/{name}", func(w http.ResponseWriter, r *http.Request) {
+		s.LoadGameHandler(w, r, s.GameManager)
 	})
 
 	mux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {

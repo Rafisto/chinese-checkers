@@ -92,6 +92,10 @@ func (b *ChaosBoard) GetBoard() [][]int {
 	return b.board
 }
 
+func (b *ChaosBoard) SetBoard(board [][]int) {
+	b.board = board
+}
+
 func (b *ChaosBoard) GetPawns() Pawns {
 	return b.pawns
 }
