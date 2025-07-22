@@ -1,5 +1,8 @@
 ## Chinese Checkers
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![CI Build / Test](https://github.com/Rafisto/chinese-checkers/actions/workflows/test.yml/badge.svg)](https://github.com/Rafisto/chinese-checkers/actions/workflows/test.yml)
+
 - [Chinese Checkers](#chinese-checkers)
   - [Project Outline](#project-outline)
   - [Quick Start Guide](#quick-start-guide)
@@ -8,7 +11,7 @@
 
 ### Project Outline
 
-Project outline is available at [Chinese Checkers DrawIO UML](https://drive.google.com/file/d/1iIDCE1dcRjzx1F8HkmPSoind6I9Joa1u/view?usp=sharing)
+This project was created for a Software Engineering course at Wrocław University of Science and Technology. The project outline is available in the [UML (draw.io)](https://drive.google.com/file/d/1iIDCE1dcRjzx1F8HkmPSoind6I9Joa1u/view?usp=sharing) form.
 
 ### Quick Start Guide
 
